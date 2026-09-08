@@ -18,57 +18,140 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 950px;
       margin: 0 auto;
-      padding: 60px 20px;
+      padding: 45px 20px;
+    }
+
+    .header {
       text-align: center;
+      margin-bottom: 35px;
     }
 
     .logo {
-      font-size: 48px;
+      font-size: 46px;
       font-weight: 900;
       letter-spacing: 2px;
-      margin-bottom: 10px;
     }
 
     .tagline {
-      font-size: 22px;
+      margin-top: 8px;
+      font-size: 21px;
       color: #555;
-      margin-bottom: 50px;
     }
 
-    .card {
+    .main-card {
       background: white;
       border-radius: 20px;
-      padding: 40px;
+      padding: 35px;
       box-shadow: 0 10px 35px rgba(0,0,0,0.08);
     }
 
-    h2 {
+    h1 {
+      text-align: center;
       margin-top: 0;
-      font-size: 28px;
+      font-size: 30px;
     }
 
-    p {
+    .intro {
+      text-align: center;
       color: #666;
       font-size: 17px;
+      margin-bottom: 30px;
     }
 
-    .button {
-      display: inline-block;
-      margin-top: 25px;
-      padding: 15px 30px;
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    .upload-box h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .upload-box p {
+      color: #777;
+      font-size: 14px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .field {
+      margin-top: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      font-size: 16px;
+      background: white;
+    }
+
+    .analyze-button {
+      width: 100%;
+      margin-top: 28px;
+      padding: 17px;
+      border: none;
+      border-radius: 10px;
       background: #111827;
       color: white;
-      border-radius: 10px;
+      font-size: 17px;
       font-weight: bold;
-      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .analyze-button:hover {
+      opacity: 0.9;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 18px;
+      color: #666;
+      min-height: 20px;
     }
 
     .footer {
-      margin-top: 40px;
+      text-align: center;
+      margin-top: 30px;
       color: #888;
       font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .logo {
+        font-size: 36px;
+      }
+
+      .main-card {
+        padding: 25px 20px;
+      }
     }
   </style>
 </head>
@@ -77,25 +160,65 @@
 
   <div class="container">
 
-    <div class="logo">
-      MISTER E AI
+    <div class="header">
+      <div class="logo">MISTER E AI</div>
+      <div class="tagline">Know the card. Tell the story.</div>
     </div>
 
-    <div class="tagline">
-      Know the card. Tell the story.
-    </div>
+    <div class="main-card">
 
-    <div class="card">
-      <h2>Your AI Trading Card Assistant</h2>
+      <h1>Analyze Your Trading Card</h1>
 
-      <p>
-        Upload a trading card and let Mister E AI help you
-        understand it, tell its story, and create content around it.
-      </p>
+      <div class="intro">
+        Upload the front and back of your card and Mister E AI
+        will help uncover the details and story behind it.
+      </div>
 
-      <a class="button" href="#">
-        CARD ANALYZER COMING SOON
-      </a>
+      <div class="upload-grid">
+
+        <div class="upload-box">
+          <h3>📸 Card Front</h3>
+          <p>Upload a clear photo of the front.</p>
+          <input
+            type="file"
+            id="frontImage"
+            accept="image/*"
+          >
+        </div>
+
+        <div class="upload-box">
+          <h3>📸 Card Back</h3>
+          <p>Upload the back if available.</p>
+          <input
+            type="file"
+            id="backImage"
+            accept="image/*"
+          >
+        </div>
+
+      </div>
+
+      <div class="field">
+        <label for="sport">Sport / Category</label>
+
+        <select id="sport">
+          <option value="Football">Football</option>
+          <option value="Basketball">Basketball</option>
+          <option value="Baseball">Baseball</option>
+          <option value="Hockey">Hockey</option>
+          <option value="Wrestling">Wrestling</option>
+          <option value="MMA">MMA</option>
+          <option value="Pokémon / Trading Card">Pokémon / Trading Card</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <button class="analyze-button" id="analyzeButton">
+        🔍 ANALYZE MY CARD
+      </button>
+
+      <div class="status" id="status"></div>
+
     </div>
 
     <div class="footer">
@@ -103,6 +226,24 @@
     </div>
 
   </div>
+
+  <script>
+    const button = document.getElementById("analyzeButton");
+    const frontInput = document.getElementById("frontImage");
+    const backInput = document.getElementById("backImage");
+    const status = document.getElementById("status");
+
+    button.addEventListener("click", function () {
+
+      if (!frontInput.files.length) {
+        status.textContent = "Please upload the front of the card first.";
+        return;
+      }
+
+      status.textContent =
+        "Card images selected. AI analysis will be connected next.";
+    });
+  </script>
 
 </body>
 </html>
