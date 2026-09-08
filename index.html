@@ -18,7 +18,7 @@
     }
 
     .container {
-      max-width: 950px;
+      max-width: 1050px;
       margin: 0 auto;
       padding: 45px 20px;
     }
@@ -44,7 +44,7 @@
       background: white;
       border-radius: 20px;
       padding: 35px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
@@ -70,7 +70,7 @@
     .upload-box {
       border: 2px dashed #cbd5e1;
       border-radius: 15px;
-      padding: 25px;
+      padding: 22px;
       text-align: center;
       background: #f8fafc;
     }
@@ -78,6 +78,7 @@
     .upload-box h3 {
       margin-top: 0;
       margin-bottom: 8px;
+      font-size: 20px;
     }
 
     .upload-box p {
@@ -88,6 +89,17 @@
     input[type="file"] {
       width: 100%;
       margin-top: 12px;
+    }
+
+    .card-preview {
+      display: none;
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      margin-top: 18px;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
     .field {
@@ -126,11 +138,87 @@
       opacity: 0.9;
     }
 
+    .analyze-button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
     .status {
       text-align: center;
       margin-top: 18px;
       color: #666;
       min-height: 20px;
+    }
+
+    /* MISTER E AI FOUND */
+
+    .found-box {
+      margin-top: 35px;
+      padding: 30px;
+      border-radius: 18px;
+      background: #111827;
+      color: white;
+      text-align: center;
+    }
+
+    .found-box h2 {
+      margin-top: 0;
+      font-size: 27px;
+    }
+
+    .found-title {
+      font-size: 25px;
+      font-weight: 800;
+      margin: 12px 0;
+    }
+
+    .found-details {
+      font-size: 17px;
+      line-height: 1.7;
+      margin: 0 auto;
+      max-width: 750px;
+    }
+
+    .why-card {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      line-height: 1.6;
+    }
+
+    /* RESULT SECTIONS */
+
+    .results {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .result-section {
+      background: #f8fafc;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    .result-section h2 {
+      margin-top: 0;
+      font-size: 23px;
+    }
+
+    .result-section h3 {
+      margin-bottom: 5px;
+      margin-top: 20px;
+    }
+
+    .result-section p {
+      color: #444;
+      line-height: 1.65;
+    }
+
+    .result-section li {
+      margin-bottom: 12px;
+      line-height: 1.55;
     }
 
     .footer {
@@ -174,80 +262,130 @@
         will help uncover the details and story behind it.
       </div>
 
+      <!-- UPLOAD AREA -->
+
       <div class="upload-grid">
 
         <div class="upload-box">
-  <h3>📸 Card Front</h3>
-  <p>Upload a clear photo of the front.</p>
 
-  <input
-    type="file"
-    id="frontImage"
-    accept="image/*"
-  >
+          <h3>📸 Card Front</h3>
 
-  <img
-    id="frontPreview"
-    style="
-      display:none;
-      width:100%;
-      max-height:360px;
-      object-fit:contain;
-      margin-top:18px;
-      border-radius:12px;
-      background:#ffffff;
-    "
-  >
-</div>
+          <p>
+            Upload a clear photo of the front.
+          </p>
+
+          <input
+            type="file"
+            id="frontImage"
+            accept="image/*"
+          >
+
+          <img
+            id="frontPreview"
+            class="card-preview"
+            alt="Card front preview"
+          >
+
+        </div>
+
 
         <div class="upload-box">
-  <h3>📸 Card Back</h3>
-  <p>Upload the back if available.</p>
 
-  <input
-    type="file"
-    id="backImage"
-    accept="image/*"
-  >
+          <h3>📸 Card Back</h3>
 
-  <img
-    id="backPreview"
-    style="
-      display:none;
-      width:100%;
-      max-height:360px;
-      object-fit:contain;
-      margin-top:18px;
-      border-radius:12px;
-      background:#ffffff;
-    "
-  >
-</div>
+          <p>
+            Upload the back if available.
+          </p>
+
+          <input
+            type="file"
+            id="backImage"
+            accept="image/*"
+          >
+
+          <img
+            id="backPreview"
+            class="card-preview"
+            alt="Card back preview"
+          >
+
+        </div>
 
       </div>
+
+
+      <!-- SPORT -->
 
       <div class="field">
-        <label for="sport">Sport / Category</label>
+
+        <label for="sport">
+          Sport / Category
+        </label>
 
         <select id="sport">
-          <option value="Football">Football</option>
-          <option value="Basketball">Basketball</option>
-          <option value="Baseball">Baseball</option>
-          <option value="Hockey">Hockey</option>
-          <option value="Wrestling">Wrestling</option>
-          <option value="MMA">MMA</option>
-          <option value="Pokémon / Trading Card">Pokémon / Trading Card</option>
-          <option value="Other">Other</option>
+
+          <option value="Football">
+            Football
+          </option>
+
+          <option value="Basketball">
+            Basketball
+          </option>
+
+          <option value="Baseball">
+            Baseball
+          </option>
+
+          <option value="Hockey">
+            Hockey
+          </option>
+
+          <option value="Wrestling">
+            Wrestling
+          </option>
+
+          <option value="MMA">
+            MMA
+          </option>
+
+          <option value="Pokémon / Trading Card">
+            Pokémon / Trading Card
+          </option>
+
+          <option value="Other">
+            Other
+          </option>
+
         </select>
+
       </div>
 
-      <button class="analyze-button" id="analyzeButton">
+
+      <!-- ANALYZE BUTTON -->
+
+      <button
+        class="analyze-button"
+        id="analyzeButton"
+      >
         🔍 ANALYZE MY CARD
       </button>
 
-      <div class="status" id="status"></div>
+
+      <div
+        class="status"
+        id="status"
+      ></div>
+
+
+      <!-- RESULTS APPEAR HERE -->
+
+      <div
+        id="results"
+        class="results"
+      ></div>
 
     </div>
+
 
     <div class="footer">
       MISTER E AI • Built for collectors and creators
@@ -255,332 +393,747 @@
 
   </div>
 
-<script>
-  const button = document.getElementById("analyzeButton");
-  const frontPreview = document.getElementById("frontPreview");
-  const backPreview = document.getElementById("backPreview");
 
-frontInput.addEventListener("change", function () {
-  if (!frontInput.files.length) {
-    frontPreview.style.display = "none";
-    return;
-  }
+  <script>
 
-  frontPreview.src = URL.createObjectURL(frontInput.files[0]);
-  frontPreview.style.display = "block";
-});
+    /* ==========================================
+       ELEMENTS
+    ========================================== */
 
-backInput.addEventListener("change", function () {
-  if (!backInput.files.length) {
-    backPreview.style.display = "none";
-    return;
-  }
+    const button =
+      document.getElementById("analyzeButton");
 
-  backPreview.src = URL.createObjectURL(backInput.files[0]);
-  backPreview.style.display = "block";
-});
-  const frontInput = document.getElementById("frontImage");
-  const backInput = document.getElementById("backImage");
-  const sportInput = document.getElementById("sport");
-  const status = document.getElementById("status");
+    const frontInput =
+      document.getElementById("frontImage");
 
-  button.addEventListener("click", async function () {
+    const backInput =
+      document.getElementById("backImage");
 
-    if (!frontInput.files.length) {
-      status.textContent = "Please upload the front of the card first.";
-      return;
-    }
+    const sportInput =
+      document.getElementById("sport");
 
-    button.disabled = true;
-    button.textContent = "🔍 ANALYZING CARD...";
-    status.textContent = "Preparing your card images...";
+    const status =
+      document.getElementById("status");
 
-    try {
+    const frontPreview =
+      document.getElementById("frontPreview");
 
-      const front = await resizeImage(frontInput.files[0]);
-      const back = backInput.files.length
-        ? await resizeImage(backInput.files[0])
-        : null;
+    const backPreview =
+      document.getElementById("backPreview");
 
-      status.textContent = "Mister E AI is examining your card...";
-
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          front: front,
-          back: back,
-          sport: sportInput.value
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "The card could not be analyzed."
-        );
-      }
-
-      displayResults(data);
-
-    } catch (error) {
-
-      console.error(error);
-
-      status.textContent =
-        "Something went wrong: " + error.message;
-
-    } finally {
-
-      button.disabled = false;
-      button.textContent = "🔍 ANALYZE MY CARD";
-
-    }
-  });
-
-
-  function resizeImage(file) {
-
-    return new Promise((resolve, reject) => {
-
-      const reader = new FileReader();
-
-      reader.onload = function(event) {
-
-        const image = new Image();
-
-        image.onload = function() {
-
-          const maxSize = 1400;
-
-          let width = image.width;
-          let height = image.height;
-
-          if (width > maxSize || height > maxSize) {
-
-            if (width > height) {
-              height = Math.round(height * maxSize / width);
-              width = maxSize;
-            } else {
-              width = Math.round(width * maxSize / height);
-              height = maxSize;
-            }
-          }
-
-          const canvas = document.createElement("canvas");
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const context = canvas.getContext("2d");
-
-          context.drawImage(
-            image,
-            0,
-            0,
-            width,
-            height
-          );
-
-          resolve(
-            canvas.toDataURL("image/jpeg", 0.8)
-          );
-        };
-
-        image.onerror = reject;
-
-        image.src = event.target.result;
-      };
-
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
-  }
-
-
-  function displayResults(data) {
-
-    const results = document.createElement("div");
-
-    results.style.marginTop = "35px";
-    results.style.textAlign = "left";
-
-    results.innerHTML = `
-      <div style="
-        background:#f8fafc;
-        border-radius:15px;
-        padding:25px;
-        margin-bottom:20px;
-      ">
-        <h2>📋 Card Information</h2>
-
-        <p><strong>Title:</strong>
-        ${safe(data.card_information?.title)}</p>
-
-        <p><strong>Athlete / Character:</strong>
-        ${safe(data.card_information?.athlete_or_character)}</p>
-
-        <p><strong>Sport:</strong>
-        ${safe(data.card_information?.sport)}</p>
-
-        <p><strong>Year:</strong>
-        ${safe(data.card_information?.year)}</p>
-
-        <p><strong>Brand:</strong>
-        ${safe(data.card_information?.brand)}</p>
-
-        <p><strong>Set:</strong>
-        ${safe(data.card_information?.set)}</p>
-
-        <p><strong>Card Number:</strong>
-        ${safe(data.card_information?.card_number)}</p>
-
-        <p><strong>Parallel / Variant:</strong>
-        ${safe(data.card_information?.parallel_or_variant)}</p>
-
-        <p><strong>Rookie Card:</strong>
-        ${safe(data.card_information?.rookie_card)}</p>
-
-        <p><strong>Special Features:</strong>
-        ${safe(data.card_information?.special_features)}</p>
-
-        <p><strong>Condition Observations:</strong>
-        ${safe(data.card_information?.condition_observations)}</p>
-      </div>
-
-
-      <div style="
-        background:#f8fafc;
-        border-radius:15px;
-        padding:25px;
-        margin-bottom:20px;
-      ">
-        <h2>📖 History of the Card & Athlete</h2>
-
-        <h3>Card History</h3>
-
-        <p>
-          ${safe(data.history?.card_history)}
-        </p>
-
-        <h3>Athlete / Character History</h3>
-
-        <p>
-          ${safe(data.history?.athlete_or_character_history)}
-        </p>
-      </div>
-
-
-      <div style="
-        background:#f8fafc;
-        border-radius:15px;
-        padding:25px;
-        margin-bottom:20px;
-      ">
-        <h2>🛒 Listing Description</h2>
-
-        <p>
-          ${safe(data.listing_description)}
-        </p>
-      </div>
-
-
-      <div style="
-        background:#f8fafc;
-        border-radius:15px;
-        padding:25px;
-        margin-bottom:20px;
-      ">
-        <h2>📱 Social Media Post Ideas</h2>
-
-        ${makeList(data.social_media_post_ideas)}
-      </div>
-
-
-      <div style="
-        background:#f8fafc;
-        border-radius:15px;
-        padding:25px;
-        margin-bottom:20px;
-      ">
-        <h2>#️⃣ Hashtags</h2>
-
-        <p>
-          ${safe((data.hashtags || []).join(" "))}
-        </p>
-      </div>
-
-
-      <div style="
-        background:#f8fafc;
-        border-radius:15px;
-        padding:25px;
-      ">
-        <h2>🎥 Content Ideas</h2>
-
-        ${makeList(data.content_ideas)}
-      </div>
-    `;
-
-
-    const oldResults =
+    const results =
       document.getElementById("results");
 
-    if (oldResults) {
-      oldResults.remove();
+
+    /* ==========================================
+       FRONT IMAGE PREVIEW
+    ========================================== */
+
+    frontInput.addEventListener(
+      "change",
+      function () {
+
+        if (!frontInput.files.length) {
+
+          frontPreview.style.display = "none";
+
+          return;
+        }
+
+        const file =
+          frontInput.files[0];
+
+        frontPreview.src =
+          URL.createObjectURL(file);
+
+        frontPreview.style.display =
+          "block";
+
+      }
+    );
+
+
+    /* ==========================================
+       BACK IMAGE PREVIEW
+    ========================================== */
+
+    backInput.addEventListener(
+      "change",
+      function () {
+
+        if (!backInput.files.length) {
+
+          backPreview.style.display = "none";
+
+          return;
+        }
+
+        const file =
+          backInput.files[0];
+
+        backPreview.src =
+          URL.createObjectURL(file);
+
+        backPreview.style.display =
+          "block";
+
+      }
+    );
+
+
+    /* ==========================================
+       ANALYZE CARD
+    ========================================== */
+
+    button.addEventListener(
+      "click",
+      async function () {
+
+        if (!frontInput.files.length) {
+
+          status.textContent =
+            "Please upload the front of the card first.";
+
+          return;
+        }
+
+
+        button.disabled = true;
+
+        button.textContent =
+          "🔍 ANALYZING CARD...";
+
+        status.textContent =
+          "Preparing your card images...";
+
+
+        try {
+
+          /* Resize images before sending */
+
+          const front =
+            await resizeImage(
+              frontInput.files[0]
+            );
+
+
+          const back =
+            backInput.files.length
+              ? await resizeImage(
+                  backInput.files[0]
+                )
+              : null;
+
+
+          status.textContent =
+            "Mister E AI is examining your card...";
+
+
+          /* Send JSON to Vercel API */
+
+          const response =
+            await fetch(
+              "/api/analyze",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+
+                  front: front,
+
+                  back: back,
+
+                  sport:
+                    sportInput.value
+
+                })
+              }
+            );
+
+
+          const data =
+            await response.json();
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "The card could not be analyzed."
+            );
+
+          }
+
+
+          /* Display results */
+
+          displayResults(data);
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          status.textContent =
+            "Something went wrong: " +
+            error.message;
+
+
+        } finally {
+
+          button.disabled = false;
+
+          button.textContent =
+            "🔍 ANALYZE MY CARD";
+
+        }
+
+      }
+    );
+
+
+    /* ==========================================
+       IMAGE RESIZING
+    ========================================== */
+
+    function resizeImage(file) {
+
+      return new Promise(
+        (resolve, reject) => {
+
+          const reader =
+            new FileReader();
+
+
+          reader.onload =
+            function (event) {
+
+              const image =
+                new Image();
+
+
+              image.onload =
+                function () {
+
+                  const maxSize =
+                    1400;
+
+
+                  let width =
+                    image.width;
+
+                  let height =
+                    image.height;
+
+
+                  if (
+                    width > maxSize ||
+                    height > maxSize
+                  ) {
+
+                    if (width > height) {
+
+                      height =
+                        Math.round(
+                          height *
+                          maxSize /
+                          width
+                        );
+
+                      width =
+                        maxSize;
+
+                    } else {
+
+                      width =
+                        Math.round(
+                          width *
+                          maxSize /
+                          height
+                        );
+
+                      height =
+                        maxSize;
+
+                    }
+
+                  }
+
+
+                  const canvas =
+                    document.createElement(
+                      "canvas"
+                    );
+
+
+                  canvas.width =
+                    width;
+
+                  canvas.height =
+                    height;
+
+
+                  const context =
+                    canvas.getContext(
+                      "2d"
+                    );
+
+
+                  context.drawImage(
+                    image,
+                    0,
+                    0,
+                    width,
+                    height
+                  );
+
+
+                  resolve(
+                    canvas.toDataURL(
+                      "image/jpeg",
+                      0.8
+                    )
+                  );
+
+                };
+
+
+              image.onerror =
+                reject;
+
+
+              image.src =
+                event.target.result;
+
+            };
+
+
+          reader.onerror =
+            reject;
+
+
+          reader.readAsDataURL(file);
+
+        }
+      );
+
     }
 
-    results.id = "results";
 
-    document
-      .querySelector(".main-card")
-      .appendChild(results);
+    /* ==========================================
+       DISPLAY RESULTS
+    ========================================== */
 
-    status.textContent =
-      "✅ Card analysis complete!";
-  }
+    function displayResults(data) {
+
+      const card =
+        data.card_information || {};
+
+      const history =
+        data.history || {};
 
 
-  function makeList(items) {
+      /* Build the big "FOUND" summary */
 
-    if (!Array.isArray(items)) {
-      return "<p>None available.</p>";
+      const title =
+        card.title ||
+        "Trading Card";
+
+
+      const athlete =
+        card.athlete_or_character ||
+        "Unknown";
+
+
+      const year =
+        card.year ||
+        "Unknown";
+
+
+      const brand =
+        card.brand ||
+        "Unknown";
+
+
+      const set =
+        card.set ||
+        "Unknown";
+
+
+      const variant =
+        card.parallel_or_variant ||
+        "Not confirmed";
+
+
+      const rookie =
+        card.rookie_card ||
+        "Not confirmed";
+
+
+      let whyThisCardMatters =
+        "Mister E AI identified this card from the information visible in the uploaded images.";
+
+
+      if (
+        card.special_features &&
+        card.special_features !== "Unknown"
+      ) {
+
+        whyThisCardMatters =
+          card.special_features;
+
+      } else if (
+        rookie &&
+        rookie.toLowerCase()
+          .includes("yes")
+      ) {
+
+        whyThisCardMatters =
+          "This card is identified as a rookie card, which can make it particularly interesting to collectors.";
+
+      } else if (
+        variant &&
+        variant !== "Not confirmed"
+      ) {
+
+        whyThisCardMatters =
+          "The card appears to have a specific parallel or variant that may make it more interesting to collectors.";
+
+      }
+
+
+      results.innerHTML = `
+
+        <!-- =================================
+             MISTER E AI FOUND
+        ================================== -->
+
+        <div class="found-box">
+
+          <h2>
+            🔎 MISTER E AI FOUND...
+          </h2>
+
+          <div class="found-title">
+            ${safe(athlete)}
+          </div>
+
+          <div class="found-details">
+
+            <strong>
+              ${safe(year)}
+            </strong>
+
+            •
+            
+            <strong>
+              ${safe(brand)}
+            </strong>
+
+            •
+
+            <strong>
+              ${safe(set)}
+            </strong>
+
+            <br>
+
+            ${safe(title)}
+
+            <br>
+
+            ${safe(variant)}
+
+            <br>
+
+            Rookie Card:
+            ${safe(rookie)}
+
+          </div>
+
+
+          <div class="why-card">
+
+            <strong>
+              Why this card matters:
+            </strong>
+
+            <br><br>
+
+            ${safe(whyThisCardMatters)}
+
+          </div>
+
+        </div>
+
+
+        <!-- =================================
+             CARD INFORMATION
+        ================================== -->
+
+        <div class="result-section">
+
+          <h2>
+            📋 Card Information
+          </h2>
+
+          <p>
+            <strong>Title:</strong>
+            ${safe(card.title)}
+          </p>
+
+          <p>
+            <strong>Athlete / Character:</strong>
+            ${safe(card.athlete_or_character)}
+          </p>
+
+          <p>
+            <strong>Sport:</strong>
+            ${safe(card.sport)}
+          </p>
+
+          <p>
+            <strong>Year:</strong>
+            ${safe(card.year)}
+          </p>
+
+          <p>
+            <strong>Brand:</strong>
+            ${safe(card.brand)}
+          </p>
+
+          <p>
+            <strong>Set:</strong>
+            ${safe(card.set)}
+          </p>
+
+          <p>
+            <strong>Card Number:</strong>
+            ${safe(card.card_number)}
+          </p>
+
+          <p>
+            <strong>Parallel / Variant:</strong>
+            ${safe(card.parallel_or_variant)}
+          </p>
+
+          <p>
+            <strong>Rookie Card:</strong>
+            ${safe(card.rookie_card)}
+          </p>
+
+          <p>
+            <strong>Special Features:</strong>
+            ${safe(card.special_features)}
+          </p>
+
+          <p>
+            <strong>Condition Observations:</strong>
+            ${safe(card.condition_observations)}
+          </p>
+
+        </div>
+
+
+        <!-- =================================
+             HISTORY
+        ================================== -->
+
+        <div class="result-section">
+
+          <h2>
+            📖 History of the Card & Athlete
+          </h2>
+
+          <h3>
+            Card History
+          </h3>
+
+          <p>
+            ${safe(history.card_history)}
+          </p>
+
+          <h3>
+            Athlete / Character History
+          </h3>
+
+          <p>
+            ${safe(
+              history.athlete_or_character_history
+            )}
+          </p>
+
+        </div>
+
+
+        <!-- =================================
+             LISTING
+        ================================== -->
+
+        <div class="result-section">
+
+          <h2>
+            🛒 Listing Description
+          </h2>
+
+          <p>
+            ${safe(data.listing_description)}
+          </p>
+
+        </div>
+
+
+        <!-- =================================
+             SOCIAL MEDIA
+        ================================== -->
+
+        <div class="result-section">
+
+          <h2>
+            📱 Social Media Post Ideas
+          </h2>
+
+          ${makeList(
+            data.social_media_post_ideas
+          )}
+
+        </div>
+
+
+        <!-- =================================
+             HASHTAGS
+        ================================== -->
+
+        <div class="result-section">
+
+          <h2>
+            #️⃣ Hashtags
+          </h2>
+
+          <p>
+            ${safe(
+              (data.hashtags || []).join(" ")
+            )}
+          </p>
+
+        </div>
+
+
+        <!-- =================================
+             CONTENT IDEAS
+        ================================== -->
+
+        <div class="result-section">
+
+          <h2>
+            🎥 Content Ideas
+          </h2>
+
+          ${makeList(
+            data.content_ideas
+          )}
+
+        </div>
+
+      `;
+
+
+      status.textContent =
+        "✅ Card analysis complete!";
+
     }
 
-    return `
-      <ol>
-        ${items.map(item => `
-          <li style="margin-bottom:10px;">
-            ${safe(item)}
-          </li>
-        `).join("")}
-      </ol>
-    `;
-  }
+
+    /* ==========================================
+       MAKE LIST
+    ========================================== */
+
+    function makeList(items) {
+
+      if (
+        !Array.isArray(items) ||
+        items.length === 0
+      ) {
+
+        return "<p>None available.</p>";
+
+      }
 
 
-  function safe(value) {
+      return `
 
-    if (
-      value === undefined ||
-      value === null ||
-      value === ""
-    ) {
-      return "Unknown";
+        <ol>
+
+          ${items
+            .map(
+              item => `
+                <li>
+                  ${safe(item)}
+                </li>
+              `
+            )
+            .join("")
+          }
+
+        </ol>
+
+      `;
+
     }
 
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-</script>
+
+    /* ==========================================
+       SAFELY DISPLAY AI TEXT
+    ========================================== */
+
+    function safe(value) {
+
+      if (
+        value === undefined ||
+        value === null ||
+        value === ""
+      ) {
+
+        return "Unknown";
+
+      }
+
+
+      return String(value)
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+  </script>
 
 </body>
 </html>
