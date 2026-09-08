@@ -18,7 +18,21 @@ export default async function handler(request, response) {
       });
     }
 
-    const images = [
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
+      return response.status(500).json({
+        error: "OPENAI_API_KEY is not configured."
+      });
+    }
+
+    /*
+     * ---------------------------------------------------------
+     * IMAGES
+     * ---------------------------------------------------------
+     */
+
+    const content = [
       {
         type: "input_image",
         image_url: `data:image/jpeg;base64,${front}`
@@ -26,34 +40,53 @@ export default async function handler(request, response) {
     ];
 
     if (back) {
-      images.push({
+      content.push({
         type: "input_image",
         image_url: `data:image/jpeg;base64,${back}`
       });
     }
 
-    const prompt = `
-You are MISTER E AI, an expert trading-card identification and research assistant.
+    /*
+     * ---------------------------------------------------------
+     * COMPACT PROMPT
+     *
+     * Keep this intentionally short.
+     * The images provide the visual information.
+     * Web search provides verification.
+     * ---------------------------------------------------------
+     */
 
-Analyze the uploaded trading card.
+    content.push({
+      type: "input_text",
+      text: `
+You are MISTER E AI, a trading-card identification and research assistant.
+
+Identify the uploaded card as accurately as possible.
 
 Category: ${sport}
 
-You MUST use web search to research the card and athlete/character.
+Use web search to verify the card and athlete/character.
 
-Identify the card as accurately as possible, then provide useful information for a collector or seller.
+Prioritize:
+- year
+- brand
+- set
+- card number
+- athlete/character
+- variant/parallel
+- rookie status
+- important card history
+- important athlete/character history
 
-ACCURACY:
-- Never invent card numbers, parallels, serial numbers, print runs, or dates.
-- Never call something a rookie card unless supported by research.
-- Never claim authenticity.
-- Never assign a professional grade.
-- Never invent market values.
-- If something cannot be verified, say "Not verified."
+Never invent information.
+If something cannot be verified, write "Not verified."
+Do not claim authenticity.
+Do not assign a professional grade.
+Do not invent market value.
 
-Return ONLY valid JSON.
+Then create concise collector/seller content.
 
-Use exactly this structure:
+Return ONLY valid JSON with this structure:
 
 {
   "card_information": {
@@ -75,40 +108,20 @@ Use exactly this structure:
   },
   "why_this_card_matters": "",
   "listing_description": "",
-  "social_media_post_ideas": [
-    "",
-    "",
-    ""
-  ],
-  "hashtags": [
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
-  ],
-  "content_ideas": [
-    "",
-    "",
-    "",
-    "",
-    ""
-  ]
+  "social_media_post_ideas": ["", "", ""],
+  "hashtags": ["", "", "", "", "", "", "", ""],
+  "content_ideas": ["", "", "", "", ""]
 }
 
-Keep answers concise.
-`;
+Keep every answer concise.
+`
+    });
 
-    const apiKey = process.env.OPENAI_API_KEY;
-
-    if (!apiKey) {
-      return response.status(500).json({
-        error: "OPENAI_API_KEY is not configured."
-      });
-    }
+    /*
+     * ---------------------------------------------------------
+     * OPENAI REQUEST
+     * ---------------------------------------------------------
+     */
 
     const openaiResponse = await fetch(
       "https://api.openai.com/v1/responses",
@@ -126,16 +139,14 @@ Keep answers concise.
           input: [
             {
               role: "user",
-              content: [
-                ...images,
-                {
-                  type: "input_text",
-                  text: prompt
-                }
-              ]
+              content
             }
           ],
 
+          /*
+           * Web research is required because MISTER E AI
+           * is specifically a research product.
+           */
           tools: [
             {
               type: "web_search"
@@ -144,12 +155,21 @@ Keep answers concise.
 
           tool_choice: "required",
 
-          max_output_tokens: 6000
+          /*
+           * Keep output deliberately compact.
+           */
+          max_output_tokens: 3500
         })
       }
     );
 
     const data = await openaiResponse.json();
+
+    /*
+     * ---------------------------------------------------------
+     * ERROR HANDLING
+     * ---------------------------------------------------------
+     */
 
     if (!openaiResponse.ok) {
       console.error(
@@ -166,7 +186,7 @@ Keep answers concise.
 
     /*
      * ---------------------------------------------------------
-     * GET THE MODEL'S TEXT
+     * EXTRACT MODEL TEXT
      * ---------------------------------------------------------
      */
 
@@ -181,20 +201,20 @@ Keep answers concise.
         continue;
       }
 
-      for (const content of item.content) {
+      for (const part of item.content) {
         if (
-          content &&
-          content.type === "output_text" &&
-          typeof content.text === "string"
+          part &&
+          part.type === "output_text" &&
+          typeof part.text === "string"
         ) {
-          outputText += content.text;
+          outputText += part.text;
         }
       }
     }
 
     if (!outputText) {
       console.error(
-        "No output text:",
+        "No output text returned:",
         JSON.stringify(data, null, 2)
       );
 
@@ -203,11 +223,21 @@ Keep answers concise.
       });
     }
 
+    /*
+     * Remove accidental markdown fences.
+     */
+
     outputText = outputText
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
       .replace(/\s*```$/i, "")
       .trim();
+
+    /*
+     * ---------------------------------------------------------
+     * PARSE JSON
+     * ---------------------------------------------------------
+     */
 
     let result;
 
@@ -220,7 +250,7 @@ Keep answers concise.
       );
 
       console.error(
-        "OpenAI Output:",
+        "Model Output:",
         outputText
       );
 
@@ -232,30 +262,25 @@ Keep answers concise.
 
     /*
      * ---------------------------------------------------------
-     * EXTRACT WEB SEARCH SOURCES
+     * RESEARCH SOURCES
      *
-     * OpenAI Responses can place URL citations inside
-     * output_text annotations. We inspect the complete
-     * response recursively instead of assuming one location.
+     * Look for web-search source information anywhere in
+     * the Responses API result.
      * ---------------------------------------------------------
      */
 
     const sources = [];
 
     function addSource(url, title) {
-      if (!url || typeof url !== "string") {
+      if (
+        typeof url !== "string" ||
+        !url.trim()
+      ) {
         return;
       }
 
-      let cleanUrl = url.trim();
+      const cleanUrl = url.trim();
 
-      if (!cleanUrl) {
-        return;
-      }
-
-      /*
-       * Only accept actual web URLs.
-       */
       if (
         !cleanUrl.startsWith("http://") &&
         !cleanUrl.startsWith("https://")
@@ -263,20 +288,18 @@ Keep answers concise.
         return;
       }
 
-      /*
-       * Prevent duplicate sources.
-       */
-      const exists = sources.some(
-        source => source.url === cleanUrl
-      );
-
-      if (exists) {
+      if (
+        sources.some(
+          source => source.url === cleanUrl
+        )
+      ) {
         return;
       }
 
       sources.push({
         title:
-          typeof title === "string" && title.trim()
+          typeof title === "string" &&
+          title.trim()
             ? title.trim()
             : "Research Source",
 
@@ -285,121 +308,79 @@ Keep answers concise.
     }
 
 
-    /*
-     * Recursively inspect every object and array in the
-     * Responses API result for URL citation information.
-     */
-    function scanForSources(value) {
-
+    function inspect(value) {
       if (!value) {
         return;
       }
 
       if (Array.isArray(value)) {
-
         for (const item of value) {
-          scanForSources(item);
+          inspect(item);
         }
-
         return;
       }
 
-      if (
-        typeof value !== "object"
-      ) {
+      if (typeof value !== "object") {
         return;
       }
-
 
       /*
-       * Standard URL citation format.
+       * Direct URL citation.
        */
       if (
         value.type === "url_citation"
       ) {
-
         addSource(
           value.url,
           value.title
         );
-
       }
 
-
       /*
-       * Some response structures may expose the
-       * citation information under a nested object.
+       * Nested URL citation.
        */
       if (
         value.url_citation &&
         typeof value.url_citation === "object"
       ) {
-
         addSource(
           value.url_citation.url,
           value.url_citation.title
         );
-
       }
 
-
       /*
-       * Look for common URL/title combinations.
+       * Web-search source-like object.
        */
       if (
-        typeof value.url === "string"
-      ) {
-
-        const looksLikeSource =
-          value.type === "url_citation" ||
-          value.type === "citation" ||
+        typeof value.url === "string" &&
+        (
           value.type === "source" ||
-          value.title ||
-          value.name;
-
-        if (looksLikeSource) {
-
-          addSource(
-            value.url,
-            value.title ||
-            value.name
-          );
-
-        }
-
+          value.type === "citation" ||
+          value.type === "url_citation" ||
+          value.title
+        )
+      ) {
+        addSource(
+          value.url,
+          value.title
+        );
       }
-
 
       /*
-       * Continue scanning nested properties.
+       * Continue through nested response data.
        */
-      for (
-        const key of Object.keys(value)
-      ) {
-
-        scanForSources(
-          value[key]
-        );
-
+      for (const key of Object.keys(value)) {
+        inspect(value[key]);
       }
-
     }
 
-
-    scanForSources(data);
-
+    inspect(data);
 
     /*
-     * ---------------------------------------------------------
-     * FALLBACK:
-     *
-     * If the API response contains URL annotations attached
-     * to output text, explicitly inspect those too.
-     * ---------------------------------------------------------
+     * Also inspect annotations attached to output text.
      */
-
     for (const item of output) {
-
       if (
         !item ||
         !Array.isArray(item.content)
@@ -407,64 +388,50 @@ Keep answers concise.
         continue;
       }
 
-      for (
-        const content
-        of item.content
-      ) {
-
+      for (const part of item.content) {
         if (
-          !content ||
-          !Array.isArray(
-            content.annotations
-          )
+          !part ||
+          !Array.isArray(part.annotations)
         ) {
           continue;
         }
 
-        for (
-          const annotation
-          of content.annotations
-        ) {
-
+        for (const annotation of part.annotations) {
           if (
             annotation &&
-            annotation.type ===
-              "url_citation"
+            annotation.type === "url_citation"
           ) {
-
             addSource(
               annotation.url,
               annotation.title
             );
-
           }
-
         }
-
       }
-
     }
 
-
     /*
-     * Keep the UI clean.
+     * Keep only the first 8 sources.
      */
     result.research_sources =
-      sources.slice(0, 10);
+      sources.slice(0, 8);
 
+    console.log(
+      "MISTER E AI research sources:",
+      JSON.stringify(
+        result.research_sources,
+        null,
+        2
+      )
+    );
 
     /*
-     * Helpful server-side logging while we test this.
+     * ---------------------------------------------------------
+     * RETURN RESULT
+     * ---------------------------------------------------------
      */
-    console.log(
-      "Research sources found:",
-      result.research_sources
-    );
 
-
-    return response.status(200).json(
-      result
-    );
+    return response.status(200).json(result);
 
   } catch (error) {
 
@@ -478,6 +445,5 @@ Keep answers concise.
         error?.message ||
         "Something went wrong while analyzing the card."
     });
-
   }
 }
