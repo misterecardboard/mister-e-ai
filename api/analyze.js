@@ -32,36 +32,26 @@ export default async function handler(request, response) {
       });
     }
 
-    /*
-     * Keep the prompt short and focused.
-     * The previous version was generating a very large request,
-     * which contributed to the TPM rate-limit problem.
-     */
-
     const prompt = `
 You are MISTER E AI, an expert trading-card identification and research assistant.
 
-Analyze the uploaded trading card ${back ? "front and back" : "front"}.
+Analyze the uploaded trading card.
 
-Category selected by user: ${sport}
+Category: ${sport}
 
-Use web research to verify important identification and historical facts.
+You MUST use web search to research the card and athlete/character.
 
-Priorities:
-1. Identify the exact card when possible.
-2. Research the card/set and athlete or character.
-3. Create useful content for a collector or seller.
+Identify the card as accurately as possible, then provide useful information for a collector or seller.
 
-IMPORTANT ACCURACY RULES:
+ACCURACY:
 - Never invent card numbers, parallels, serial numbers, print runs, or dates.
-- Never call a card a rookie card unless reliable evidence supports it.
-- Never claim a card is authentic.
+- Never call something a rookie card unless supported by research.
+- Never claim authenticity.
 - Never assign a professional grade.
-- Do not provide an exact market value unless reliable research clearly supports it.
+- Never invent market values.
 - If something cannot be verified, say "Not verified."
-- Separate what is visible on the card from information learned through research.
 
-Return ONLY valid JSON. No markdown. No explanation outside the JSON.
+Return ONLY valid JSON.
 
 Use exactly this structure:
 
@@ -109,7 +99,7 @@ Use exactly this structure:
   ]
 }
 
-Keep every field concise but useful.
+Keep answers concise.
 `;
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -154,10 +144,6 @@ Keep every field concise but useful.
 
           tool_choice: "required",
 
-          /*
-           * Limit the amount of generated text.
-           * This helps keep requests predictable and efficient.
-           */
           max_output_tokens: 6000
         })
       }
@@ -179,8 +165,11 @@ Keep every field concise but useful.
     }
 
     /*
-     * Extract text from the raw Responses API response.
+     * ---------------------------------------------------------
+     * GET THE MODEL'S TEXT
+     * ---------------------------------------------------------
      */
+
     let outputText = "";
 
     const output = Array.isArray(data.output)
@@ -205,19 +194,15 @@ Keep every field concise but useful.
 
     if (!outputText) {
       console.error(
-        "OpenAI returned no output text:",
+        "No output text:",
         JSON.stringify(data, null, 2)
       );
 
       return response.status(500).json({
-        error:
-          "OpenAI returned no analysis."
+        error: "OpenAI returned no analysis."
       });
     }
 
-    /*
-     * Clean possible markdown code fences just in case.
-     */
     outputText = outputText
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
@@ -228,11 +213,10 @@ Keep every field concise but useful.
 
     try {
       result = JSON.parse(outputText);
-    } catch (parseError) {
-
+    } catch (error) {
       console.error(
         "JSON Parse Error:",
-        parseError
+        error
       );
 
       console.error(
@@ -247,110 +231,211 @@ Keep every field concise but useful.
     }
 
     /*
-     * Extract web research citations.
+     * ---------------------------------------------------------
+     * EXTRACT WEB SEARCH SOURCES
+     *
+     * OpenAI Responses can place URL citations inside
+     * output_text annotations. We inspect the complete
+     * response recursively instead of assuming one location.
+     * ---------------------------------------------------------
      */
+
     const sources = [];
 
-    for (const item of output) {
-
-      if (!Array.isArray(item.content)) {
-        continue;
+    function addSource(url, title) {
+      if (!url || typeof url !== "string") {
+        return;
       }
 
-      for (const content of item.content) {
+      let cleanUrl = url.trim();
 
-        if (
-          content &&
-          Array.isArray(content.annotations)
-        ) {
+      if (!cleanUrl) {
+        return;
+      }
 
-          for (
-            const annotation
-            of content.annotations
-          ) {
+      /*
+       * Only accept actual web URLs.
+       */
+      if (
+        !cleanUrl.startsWith("http://") &&
+        !cleanUrl.startsWith("https://")
+      ) {
+        return;
+      }
 
-            if (
-              annotation &&
-              annotation.type === "url_citation"
-            ) {
+      /*
+       * Prevent duplicate sources.
+       */
+      const exists = sources.some(
+        source => source.url === cleanUrl
+      );
 
-              const url =
-                annotation.url ||
-                annotation.href;
+      if (exists) {
+        return;
+      }
 
-              const title =
-                annotation.title ||
-                "Research Source";
+      sources.push({
+        title:
+          typeof title === "string" && title.trim()
+            ? title.trim()
+            : "Research Source",
 
-              if (
-                url &&
-                !sources.some(
-                  source =>
-                    source.url === url
-                )
-              ) {
+        url: cleanUrl
+      });
+    }
 
-                sources.push({
-                  title,
-                  url
-                });
 
-              }
+    /*
+     * Recursively inspect every object and array in the
+     * Responses API result for URL citation information.
+     */
+    function scanForSources(value) {
 
-            }
+      if (!value) {
+        return;
+      }
 
-          }
+      if (Array.isArray(value)) {
+
+        for (const item of value) {
+          scanForSources(item);
+        }
+
+        return;
+      }
+
+      if (
+        typeof value !== "object"
+      ) {
+        return;
+      }
+
+
+      /*
+       * Standard URL citation format.
+       */
+      if (
+        value.type === "url_citation"
+      ) {
+
+        addSource(
+          value.url,
+          value.title
+        );
+
+      }
+
+
+      /*
+       * Some response structures may expose the
+       * citation information under a nested object.
+       */
+      if (
+        value.url_citation &&
+        typeof value.url_citation === "object"
+      ) {
+
+        addSource(
+          value.url_citation.url,
+          value.url_citation.title
+        );
+
+      }
+
+
+      /*
+       * Look for common URL/title combinations.
+       */
+      if (
+        typeof value.url === "string"
+      ) {
+
+        const looksLikeSource =
+          value.type === "url_citation" ||
+          value.type === "citation" ||
+          value.type === "source" ||
+          value.title ||
+          value.name;
+
+        if (looksLikeSource) {
+
+          addSource(
+            value.url,
+            value.title ||
+            value.name
+          );
 
         }
 
       }
 
+
+      /*
+       * Continue scanning nested properties.
+       */
+      for (
+        const key of Object.keys(value)
+      ) {
+
+        scanForSources(
+          value[key]
+        );
+
+      }
+
     }
 
+
+    scanForSources(data);
+
+
     /*
-     * Also check top-level output items for citations,
-     * because the Responses API can expose annotations
-     * in slightly different locations.
+     * ---------------------------------------------------------
+     * FALLBACK:
+     *
+     * If the API response contains URL annotations attached
+     * to output text, explicitly inspect those too.
+     * ---------------------------------------------------------
      */
+
     for (const item of output) {
 
       if (
-        item &&
-        Array.isArray(item.annotations)
+        !item ||
+        !Array.isArray(item.content)
       ) {
+        continue;
+      }
+
+      for (
+        const content
+        of item.content
+      ) {
+
+        if (
+          !content ||
+          !Array.isArray(
+            content.annotations
+          )
+        ) {
+          continue;
+        }
 
         for (
           const annotation
-          of item.annotations
+          of content.annotations
         ) {
 
           if (
             annotation &&
-            annotation.type === "url_citation"
+            annotation.type ===
+              "url_citation"
           ) {
 
-            const url =
-              annotation.url ||
-              annotation.href;
-
-            const title =
-              annotation.title ||
-              "Research Source";
-
-            if (
-              url &&
-              !sources.some(
-                source =>
-                  source.url === url
-              )
-            ) {
-
-              sources.push({
-                title,
-                url
-              });
-
-            }
+            addSource(
+              annotation.url,
+              annotation.title
+            );
 
           }
 
@@ -360,13 +445,26 @@ Keep every field concise but useful.
 
     }
 
+
     /*
-     * Keep the number of displayed sources reasonable.
+     * Keep the UI clean.
      */
     result.research_sources =
-      sources.slice(0, 8);
+      sources.slice(0, 10);
 
-    return response.status(200).json(result);
+
+    /*
+     * Helpful server-side logging while we test this.
+     */
+    console.log(
+      "Research sources found:",
+      result.research_sources
+    );
+
+
+    return response.status(200).json(
+      result
+    );
 
   } catch (error) {
 
