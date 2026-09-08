@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>MISTER E AI</title>
 
   <style>
@@ -14,533 +13,536 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      color: #10264a;
-      background:
-        radial-gradient(
-          circle at top,
-          #ffffff 0%,
-          #eef7ff 45%,
-          #e9f2fa 100%
-        );
-      min-height: 100vh;
+      background: linear-gradient(180deg, #eef7ff 0%, #f7fbff 100%);
+      color: #10243e;
     }
 
-    .page {
-      width: 100%;
-      min-height: 100vh;
-    }
-
-    /* ==============================
-       HEADER
-    ============================== */
-
-    .header {
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #dce8f5;
+      padding: 20px 16px 18px;
       text-align: center;
-      padding: 25px 20px 5px;
+      box-shadow: 0 3px 15px rgba(18, 52, 86, 0.06);
     }
 
     .logo {
-      width: min(760px, 92vw);
-      height: auto;
-      display: block;
+      width: min(430px, 90%);
+      max-height: 150px;
+      object-fit: contain;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 28px));
+      margin: 28px auto 60px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 5vw, 42px);
+      color: #0b3159;
+    }
+
+    .hero p {
       margin: 0 auto;
-    }
-
-    /* ==============================
-       MAIN
-    ============================== */
-
-    .main-wrapper {
-      width: min(1200px, 94vw);
-      margin: 20px auto 50px;
-    }
-
-    .main-card {
-      background: rgba(255, 255, 255, 0.97);
-      border-radius: 24px;
-      padding: 38px;
-      box-shadow:
-        0 18px 45px rgba(16, 38, 74, 0.12),
-        0 3px 12px rgba(16, 38, 74, 0.06);
-      border: 1px solid rgba(120, 170, 220, 0.18);
-    }
-
-    .title {
-      text-align: center;
-      margin: 0;
-      font-size: 34px;
-      font-weight: 800;
-      color: #10264a;
-    }
-
-    .intro {
-      text-align: center;
-      max-width: 800px;
-      margin: 12px auto 32px;
-      color: #5b6f88;
-      font-size: 17px;
+      max-width: 720px;
+      color: #5b7188;
+      font-size: 16px;
       line-height: 1.6;
     }
 
-    /* ==============================
-       UPLOAD GRID
-    ============================== */
+    .card {
+      background: #ffffff;
+      border: 1px solid #d9e7f5;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 28px rgba(20, 62, 105, 0.08);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      color: #0b3159;
+      font-size: 22px;
+    }
 
     .upload-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 22px;
+      gap: 18px;
     }
 
     .upload-box {
-      border: 2px dashed #a9c8e6;
-      border-radius: 18px;
-      padding: 24px;
-      background:
-        linear-gradient(
-          145deg,
-          #f8fcff,
-          #edf6fd
-        );
+      border: 2px dashed #b7d0e8;
+      border-radius: 16px;
+      padding: 20px;
       text-align: center;
-      transition: 0.2s ease;
+      background: #f8fcff;
     }
 
-    .upload-box:hover {
-      border-color: #1976d2;
-      box-shadow:
-        0 8px 25px rgba(25, 118, 210, 0.08);
+    .upload-box h3 {
+      margin: 0 0 5px;
+      color: #143d67;
     }
 
-    .upload-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      color: #10264a;
+    .upload-box p {
+      margin: 0 0 16px;
+      color: #70869b;
+      font-size: 13px;
     }
-
-    .upload-description {
-      margin: 0 0 18px;
-      color: #71839a;
-      font-size: 14px;
-    }
-
-    /* ==============================
-       PHOTO BUTTONS
-    ============================== */
 
     .button-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .photo-button {
       display: flex;
       justify-content: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .button-label {
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 13px 12px;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 17px;
+      border: 0;
       border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-size: 15px;
+      background: #123e68;
+      color: #ffffff;
       font-weight: 700;
-      text-decoration: none;
-      transition: 0.2s ease;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
-    .camera-button {
-      background:
-        linear-gradient(
-          135deg,
-          #092e63,
-          #125aa5
-        );
-      color: white;
-    }
-
-    .choose-button {
-      background: #e6edf5;
-      color: #16365d;
-    }
-
-    .photo-button:hover {
+    button:hover,
+    .button-label:hover {
       transform: translateY(-1px);
       opacity: 0.92;
+    }
+
+    .button-secondary {
+      background: #e4f0fb;
+      color: #123e68;
     }
 
     .hidden-file {
       display: none;
     }
 
-    /* ==============================
-       IMAGE PREVIEW
-    ============================== */
-
-    .preview-container {
-      margin-top: 18px;
-      min-height: 270px;
-      border-radius: 14px;
-      background: white;
-      border: 1px solid #d5e4f1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      padding: 12px;
-    }
-
-    .preview-placeholder {
-      color: #9aabbc;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .preview-icon {
-      font-size: 42px;
-      margin-bottom: 8px;
-      opacity: 0.65;
-    }
-
-    .card-preview {
-      display: none;
+    .preview {
       width: 100%;
-      height: 260px;
+      max-height: 330px;
       object-fit: contain;
-      border-radius: 10px;
+      margin-top: 16px;
+      border-radius: 12px;
+      border: 1px solid #d7e4ef;
+      background: #ffffff;
+      display: none;
     }
 
-    /* ==============================
-       SPORT
-    ============================== */
+    .preview.show {
+      display: block;
+    }
 
-    .field {
-      margin-top: 25px;
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 15px;
+      align-items: end;
     }
 
     .field label {
       display: block;
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 9px;
-      color: #10264a;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #143d67;
     }
 
     select {
       width: 100%;
-      padding: 15px;
-      border: 1px solid #c7d8e8;
-      border-radius: 11px;
-      background: white;
-      color: #172f4f;
-      font-size: 16px;
-      outline: none;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid #c5d8e9;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #173653;
+      font-size: 15px;
     }
-
-    select:focus {
-      border-color: #1976d2;
-      box-shadow:
-        0 0 0 3px rgba(25, 118, 210, 0.1);
-    }
-
-    /* ==============================
-       ANALYZE BUTTON
-    ============================== */
 
     .analyze-button {
-      width: 100%;
-      margin-top: 25px;
-      padding: 18px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-
-      background:
-        linear-gradient(
-          135deg,
-          #0a4d96,
-          #0877d1
-        );
-
-      color: white;
-      font-size: 18px;
-      font-weight: 800;
-
-      box-shadow:
-        0 8px 20px rgba(10, 77, 150, 0.2);
-
-      transition: 0.2s ease;
-    }
-
-    .analyze-button:hover {
-      transform: translateY(-1px);
-
-      box-shadow:
-        0 10px 25px rgba(10, 77, 150, 0.25);
+      min-height: 48px;
+      padding: 12px 26px;
+      background: #0b3159;
+      font-size: 15px;
     }
 
     .analyze-button:disabled {
-      opacity: 0.65;
-      cursor: wait;
+      opacity: 0.55;
+      cursor: not-allowed;
       transform: none;
     }
 
     .status {
+      display: none;
+      margin-top: 15px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      background: #edf6ff;
+      color: #25557d;
       text-align: center;
-      margin-top: 16px;
-      min-height: 24px;
-      color: #61758e;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.5;
     }
 
-    /* ==============================
-       MISTER E AI FOUND
-    ============================== */
-
-    .found-box {
-      margin-top: 32px;
-      padding: 30px;
-      border-radius: 18px;
-
-      background:
-        linear-gradient(
-          135deg,
-          #071f43,
-          #0b579e
-        );
-
-      color: white;
-      text-align: center;
-
-      box-shadow:
-        0 12px 30px rgba(7, 31, 67, 0.18);
+    .status.show {
+      display: block;
     }
 
-    .found-box h2 {
-      margin: 0 0 12px;
-      font-size: 27px;
+    .status.error {
+      background: #fff0f0;
+      color: #a42d2d;
+    }
+
+    #results {
+      display: none;
+    }
+
+    #results.show {
+      display: block;
+    }
+
+    .found-box {
+      background: linear-gradient(135deg, #0b3159, #195789);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 30px rgba(11, 49, 89, 0.18);
+    }
+
+    .found-label {
+      font-size: 12px;
+      letter-spacing: 2px;
+      font-weight: 800;
+      opacity: 0.75;
+      margin-bottom: 7px;
     }
 
     .found-title {
-      font-size: 27px;
+      font-size: clamp(25px, 5vw, 38px);
       font-weight: 800;
-      margin: 8px 0 14px;
+      line-height: 1.15;
+      margin-bottom: 10px;
     }
 
     .found-details {
-      font-size: 16px;
-      line-height: 1.8;
+      font-size: 15px;
+      line-height: 1.6;
+      opacity: 0.92;
     }
 
-    .why-card {
-      max-width: 800px;
-      margin: 20px auto 0;
-      padding: 18px 20px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.1);
-      line-height: 1.65;
+    .why-box {
+      background: #ffffff;
+      border: 1px solid #d9e7f5;
+      border-left: 6px solid #17649d;
+      border-radius: 16px;
+      padding: 21px;
+      margin-bottom: 22px;
+      box-shadow: 0 6px 20px rgba(20, 62, 105, 0.06);
     }
 
-    /* ==============================
-       RESULTS
-    ============================== */
+    .why-box h2 {
+      margin: 0 0 10px;
+      color: #0b3159;
+      font-size: 21px;
+    }
 
-    .results {
-      margin-top: 30px;
+    .why-box p {
+      margin: 0;
+      color: #4c647a;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
     .result-section {
-      background: #f7fbff;
-      border: 1px solid #dceaf5;
-      border-radius: 16px;
-      padding: 25px;
+      background: #ffffff;
+      border: 1px solid #d9e7f5;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(20, 62, 105, 0.06);
+      margin-bottom: 20px;
+    }
+
+    .result-section.full {
+      grid-column: 1 / -1;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: #0b3159;
+      font-size: 20px;
+    }
+
+    .copy-button {
+      min-height: 36px;
+      padding: 7px 12px;
+      background: #eaf4fd;
+      color: #123e68;
+      font-size: 12px;
+    }
+
+    .copy-button.copied {
+      background: #dff4e7;
+      color: #20623a;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .info-table tr {
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .info-table tr:last-child {
+      border-bottom: 0;
+    }
+
+    .info-table td {
+      padding: 10px 4px;
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    .info-table td:first-child {
+      width: 39%;
+      color: #678097;
+      font-weight: 700;
+    }
+
+    .info-table td:last-child {
+      color: #193b59;
+    }
+
+    .history-block {
       margin-bottom: 18px;
     }
 
-    .result-section h2 {
-      margin-top: 0;
-      color: #10264a;
-      font-size: 23px;
+    .history-block:last-child {
+      margin-bottom: 0;
     }
 
-    .result-section h3 {
-      color: #244a73;
-      margin-top: 20px;
-      margin-bottom: 6px;
+    .history-block h3 {
+      margin: 0 0 7px;
+      color: #194d79;
+      font-size: 15px;
     }
 
-    .result-section p {
-      color: #455d77;
+    .history-block p,
+    .listing-text {
+      color: #4c647a;
       line-height: 1.7;
+      white-space: pre-line;
+      margin: 0;
     }
 
-    .result-section li {
-      color: #455d77;
-      line-height: 1.6;
-      margin-bottom: 12px;
+    .list {
+      margin: 0;
+      padding-left: 21px;
     }
 
-    /* ==============================
-       FOOTER
-    ============================== */
+    .list li {
+      margin-bottom: 10px;
+      color: #4c647a;
+      line-height: 1.55;
+    }
 
-    .footer {
-      text-align: center;
-      color: #7890a8;
+    .hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hashtag {
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #edf6ff;
+      color: #195584;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* RESEARCH SOURCES */
+
+    .sources {
+      display: grid;
+      gap: 12px;
+    }
+
+    .source-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 15px;
+      background: #f7fbff;
+      border: 1px solid #d8e8f5;
+      border-radius: 12px;
+    }
+
+    .source-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .source-title {
+      color: #143d67;
       font-size: 14px;
-      padding-bottom: 30px;
+      font-weight: 800;
+      line-height: 1.4;
+      margin-bottom: 4px;
     }
 
-    /* ==============================
-       MOBILE
-    ============================== */
+    .source-url {
+      color: #7890a5;
+      font-size: 11px;
+      line-height: 1.4;
+      word-break: break-all;
+    }
 
-    @media (max-width: 750px) {
+    .source-link {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 9px 14px;
+      border-radius: 9px;
+      background: #123e68;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
 
-      .header {
-        padding-top: 15px;
-      }
+    .source-link:hover {
+      background: #195789;
+      transform: translateY(-1px);
+    }
 
-      .logo {
-        width: 95vw;
-      }
+    .empty {
+      color: #8193a4;
+      font-style: italic;
+    }
 
-      .main-wrapper {
-        width: 94vw;
-        margin-top: 15px;
-      }
+    .new-card-button {
+      display: block;
+      margin: 8px auto 0;
+      background: #123e68;
+    }
 
-      .main-card {
-        padding: 22px 16px;
-        border-radius: 18px;
-      }
+    footer {
+      text-align: center;
+      padding: 25px 15px 40px;
+      color: #7890a5;
+      font-size: 12px;
+    }
 
-      .title {
-        font-size: 27px;
-      }
+    @media (max-width: 760px) {
 
-      .intro {
-        font-size: 15px;
-      }
-
-      .upload-grid {
+      .upload-grid,
+      .result-grid,
+      .controls {
         grid-template-columns: 1fr;
       }
 
-      .button-row {
-        grid-template-columns: 1fr 1fr;
+      .result-section.full {
+        grid-column: auto;
       }
 
-      .preview-container {
-        min-height: 240px;
+      .card {
+        padding: 17px;
       }
 
-      .card-preview {
-        height: 230px;
+      .section-heading {
+        align-items: flex-start;
       }
 
-      .found-title {
-        font-size: 23px;
-      }
-    }
-
-    @media (max-width: 430px) {
-
-      .button-row {
-        grid-template-columns: 1fr;
+      .section-heading h2 {
+        font-size: 18px;
       }
 
-      .photo-button {
+      .copy-button {
+        flex-shrink: 0;
+      }
+
+      .source-card {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .source-link {
         width: 100%;
       }
-
     }
-
   </style>
 </head>
 
-
 <body>
 
-  <div class="page">
+  <header>
+    <img src="/logo.png" alt="Mister E AI" class="logo">
+  </header>
 
+  <main class="container">
 
-    <!-- ==============================
-         LOGO
-    =============================== -->
+    <section class="hero">
+      <h1>Know the card. Tell the story.</h1>
 
-    <header class="header">
+      <p>
+        Upload a trading card and let MISTER E AI identify it,
+        research its history, and turn it into content you can use.
+      </p>
+    </section>
 
-      <img
-        src="logo.png"
-        class="logo"
-        alt="Mister E AI"
-      >
+    <section class="card">
 
-    </header>
+      <h2>📸 Upload Your Card</h2>
 
+      <div class="upload-grid">
 
-    <!-- ==============================
-         MAIN
-    =============================== -->
+        <div class="upload-box">
 
-    <main class="main-wrapper">
+          <h3>Front of Card</h3>
 
-      <div class="main-card">
+          <p>Take a photo or choose an image.</p>
 
+          <div class="button-row">
 
-        <h1 class="title">
-          Analyze Your Trading Card
-        </h1>
-
-
-        <div class="intro">
-          Take a photo or choose an existing image of your card.
-          Upload both sides for the most complete analysis.
-        </div>
-
-
-        <!-- ============================
-             CARD UPLOADS
-        ============================= -->
-
-        <div class="upload-grid">
-
-
-          <!-- CARD FRONT -->
-
-          <div class="upload-box">
-
-            <div class="upload-title">
-              📸 Card Front
-            </div>
-
-            <p class="upload-description">
-              Capture or select the front of your card.
-            </p>
-
-
-            <div class="button-row">
-
-              <label
-                class="photo-button camera-button"
-                for="frontCamera"
-              >
-                📷 Take Photo
-              </label>
-
-
-              <label
-                class="photo-button choose-button"
-                for="frontImage"
-              >
-                🖼️ Choose Image
-              </label>
-
-            </div>
-
+            <label for="frontCamera" class="button-label">
+              📷 Take Photo
+            </label>
 
             <input
               type="file"
@@ -550,6 +552,9 @@
               capture="environment"
             >
 
+            <label for="frontImage" class="button-label button-secondary">
+              🖼️ Choose Image
+            </label>
 
             <input
               type="file"
@@ -558,66 +563,27 @@
               accept="image/*"
             >
 
-
-            <div class="preview-container">
-
-              <div
-                id="frontPlaceholder"
-                class="preview-placeholder"
-              >
-
-                <div class="preview-icon">
-                  🖼️
-                </div>
-
-                Front image will appear here
-
-              </div>
-
-
-              <img
-                id="frontPreview"
-                class="card-preview"
-                alt="Card front preview"
-              >
-
-            </div>
-
           </div>
 
+          <img
+            id="frontPreview"
+            class="preview"
+            alt="Front preview"
+          >
 
-          <!-- CARD BACK -->
+        </div>
 
-          <div class="upload-box">
+        <div class="upload-box">
 
-            <div class="upload-title">
-              📸 Card Back
-            </div>
+          <h3>Back of Card</h3>
 
-            <p class="upload-description">
-              Capture or select the back of your card.
-            </p>
+          <p>Optional, but recommended for better identification.</p>
 
+          <div class="button-row">
 
-            <div class="button-row">
-
-              <label
-                class="photo-button camera-button"
-                for="backCamera"
-              >
-                📷 Take Photo
-              </label>
-
-
-              <label
-                class="photo-button choose-button"
-                for="backImage"
-              >
-                🖼️ Choose Image
-              </label>
-
-            </div>
-
+            <label for="backCamera" class="button-label">
+              📷 Take Photo
+            </label>
 
             <input
               type="file"
@@ -627,6 +593,9 @@
               capture="environment"
             >
 
+            <label for="backImage" class="button-label button-secondary">
+              🖼️ Choose Image
+            </label>
 
             <input
               type="file"
@@ -635,39 +604,25 @@
               accept="image/*"
             >
 
-
-            <div class="preview-container">
-
-              <div
-                id="backPlaceholder"
-                class="preview-placeholder"
-              >
-
-                <div class="preview-icon">
-                  🖼️
-                </div>
-
-                Back image will appear here
-
-              </div>
-
-
-              <img
-                id="backPreview"
-                class="card-preview"
-                alt="Card back preview"
-              >
-
-            </div>
-
           </div>
+
+          <img
+            id="backPreview"
+            class="preview"
+            alt="Back preview"
+          >
 
         </div>
 
+      </div>
 
-        <!-- ==============================
-             SPORT
-        =============================== -->
+    </section>
+
+    <section class="card">
+
+      <h2>🏷️ Card Category</h2>
+
+      <div class="controls">
 
         <div class="field">
 
@@ -675,23 +630,30 @@
             Sport / Category
           </label>
 
-
           <select id="sport">
 
-            <option value="Football">
-              Football
-            </option>
-
-            <option value="Basketball">
-              Basketball
+            <option value="Auto Detect">
+              Auto Detect
             </option>
 
             <option value="Baseball">
               Baseball
             </option>
 
+            <option value="Basketball">
+              Basketball
+            </option>
+
+            <option value="Football">
+              Football
+            </option>
+
             <option value="Hockey">
               Hockey
+            </option>
+
+            <option value="Soccer">
+              Soccer
             </option>
 
             <option value="Wrestling">
@@ -702,8 +664,12 @@
               MMA
             </option>
 
-            <option value="Pokémon / Trading Card">
-              Pokémon / Trading Card
+            <option value="Racing">
+              Racing
+            </option>
+
+            <option value="Pokemon">
+              Pokémon
             </option>
 
             <option value="Other">
@@ -714,74 +680,221 @@
 
         </div>
 
-
-        <!-- ==============================
-             ANALYZE
-        =============================== -->
-
         <button
-          class="analyze-button"
           id="analyzeButton"
+          class="analyze-button"
         >
-          🔍 ANALYZE MY CARD
+          🔎 Analyze Card
         </button>
-
-
-        <div
-          class="status"
-          id="status"
-        ></div>
-
-
-        <!-- ==============================
-             RESULTS
-        =============================== -->
-
-        <div
-          id="results"
-          class="results"
-        ></div>
-
 
       </div>
 
-    </main>
+      <div id="status" class="status"></div>
 
+    </section>
 
-    <div class="footer">
-      MISTER E AI • Built for collectors and creators
-    </div>
+    <section id="results">
 
+      <div class="found-box">
 
-  </div>
+        <div class="found-label">
+          MISTER E AI FOUND...
+        </div>
+
+        <div
+          id="foundTitle"
+          class="found-title"
+        >
+          Card Identified
+        </div>
+
+        <div
+          id="foundDetails"
+          class="found-details"
+        ></div>
+
+      </div>
+
+      <div class="why-box">
+
+        <h2>⭐ Why This Card Matters</h2>
+
+        <p id="whyThisCard"></p>
+
+      </div>
+
+      <div class="result-grid">
+
+        <section class="result-section">
+
+          <div class="section-heading">
+
+            <h2>🃏 Card Information</h2>
+
+            <button
+              class="copy-button"
+              data-copy="cardInfoText"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <div id="cardInfoText"></div>
+
+        </section>
+
+        <section class="result-section">
+
+          <div class="section-heading">
+
+            <h2>📖 History</h2>
+
+            <button
+              class="copy-button"
+              data-copy="historyText"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <div id="historyText"></div>
+
+        </section>
+
+        <section class="result-section full">
+
+          <div class="section-heading">
+
+            <h2>📝 Listing Description</h2>
+
+            <button
+              class="copy-button"
+              data-copy="listingText"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <p
+            id="listingText"
+            class="listing-text"
+          ></p>
+
+        </section>
+
+        <section class="result-section">
+
+          <div class="section-heading">
+
+            <h2>📱 Social Media Ideas</h2>
+
+            <button
+              class="copy-button"
+              data-copy="socialText"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <div id="socialText"></div>
+
+        </section>
+
+        <section class="result-section">
+
+          <div class="section-heading">
+
+            <h2>#️⃣ Hashtags</h2>
+
+            <button
+              class="copy-button"
+              data-copy="hashtagsText"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <div
+            id="hashtagsText"
+            class="hashtags"
+          ></div>
+
+        </section>
+
+        <section class="result-section full">
+
+          <div class="section-heading">
+
+            <h2>🎬 Content Ideas</h2>
+
+            <button
+              class="copy-button"
+              data-copy="contentText"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <div id="contentText"></div>
+
+        </section>
+
+        <section class="result-section full">
+
+          <div class="section-heading">
+
+            <h2>🌐 Research Sources</h2>
+
+          </div>
+
+          <div
+            id="researchSources"
+            class="sources"
+          ></div>
+
+        </section>
+
+      </div>
+
+      <button
+        id="newCardButton"
+        class="new-card-button"
+      >
+        🔄 Analyze Another Card
+      </button>
+
+    </section>
+
+  </main>
+
+  <footer>
+    MISTER E AI • Know the card. Tell the story.
+  </footer>
 
 
   <script>
 
-    /* ==============================
-       ELEMENTS
-    ============================== */
+    let selectedFrontFile = null;
+    let selectedBackFile = null;
 
-    const button =
-      document.getElementById("analyzeButton");
-
-    const frontInput =
-      document.getElementById("frontImage");
-
-    const backInput =
-      document.getElementById("backImage");
 
     const frontCamera =
       document.getElementById("frontCamera");
 
+    const frontImage =
+      document.getElementById("frontImage");
+
     const backCamera =
       document.getElementById("backCamera");
 
-    const sportInput =
-      document.getElementById("sport");
-
-    const status =
-      document.getElementById("status");
+    const backImage =
+      document.getElementById("backImage");
 
     const frontPreview =
       document.getElementById("frontPreview");
@@ -789,195 +902,751 @@
     const backPreview =
       document.getElementById("backPreview");
 
-    const frontPlaceholder =
-      document.getElementById("frontPlaceholder");
+    const analyzeButton =
+      document.getElementById("analyzeButton");
 
-    const backPlaceholder =
-      document.getElementById("backPlaceholder");
+    const status =
+      document.getElementById("status");
 
     const results =
       document.getElementById("results");
 
-
-    /* ==============================
-       SELECTED FILES
-    ============================== */
-
-    let selectedFrontFile = null;
-
-    let selectedBackFile = null;
+    const newCardButton =
+      document.getElementById("newCardButton");
 
 
-    /* ==============================
-       FRONT IMAGE
-    ============================== */
+    function handleFrontFile(file) {
 
-    function showFrontImage(file) {
-
-      if (!file) {
-        return;
-      }
+      if (!file) return;
 
       selectedFrontFile = file;
 
       frontPreview.src =
         URL.createObjectURL(file);
 
-      frontPreview.style.display =
-        "block";
-
-      frontPlaceholder.style.display =
-        "none";
+      frontPreview.classList.add("show");
     }
 
 
-    /* ==============================
-       BACK IMAGE
-    ============================== */
+    function handleBackFile(file) {
 
-    function showBackImage(file) {
-
-      if (!file) {
-        return;
-      }
+      if (!file) return;
 
       selectedBackFile = file;
 
       backPreview.src =
         URL.createObjectURL(file);
 
-      backPreview.style.display =
-        "block";
-
-      backPlaceholder.style.display =
-        "none";
+      backPreview.classList.add("show");
     }
 
-
-    /* ==============================
-       FRONT — CHOOSE IMAGE
-    ============================== */
-
-    frontInput.addEventListener(
-      "change",
-      function () {
-
-        if (frontInput.files.length) {
-
-          showFrontImage(
-            frontInput.files[0]
-          );
-
-        }
-
-      }
-    );
-
-
-    /* ==============================
-       FRONT — CAMERA
-    ============================== */
 
     frontCamera.addEventListener(
       "change",
       function () {
-
-        if (frontCamera.files.length) {
-
-          showFrontImage(
-            frontCamera.files[0]
-          );
-
-        }
-
+        handleFrontFile(this.files[0]);
       }
     );
 
 
-    /* ==============================
-       BACK — CHOOSE IMAGE
-    ============================== */
-
-    backInput.addEventListener(
+    frontImage.addEventListener(
       "change",
       function () {
-
-        if (backInput.files.length) {
-
-          showBackImage(
-            backInput.files[0]
-          );
-
-        }
-
+        handleFrontFile(this.files[0]);
       }
     );
 
-
-    /* ==============================
-       BACK — CAMERA
-    ============================== */
 
     backCamera.addEventListener(
       "change",
       function () {
-
-        if (backCamera.files.length) {
-
-          showBackImage(
-            backCamera.files[0]
-          );
-
-        }
-
+        handleBackFile(this.files[0]);
       }
     );
 
 
-    /* ==============================
-       ANALYZE CARD
-    ============================== */
+    backImage.addEventListener(
+      "change",
+      function () {
+        handleBackFile(this.files[0]);
+      }
+    );
 
-    button.addEventListener(
+
+    function resizeImage(file) {
+
+      return new Promise((resolve, reject) => {
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+
+          const img = new Image();
+
+          img.onload = function () {
+
+            const maxSize = 1400;
+
+            let width = img.width;
+            let height = img.height;
+
+            if (
+              width > maxSize ||
+              height > maxSize
+            ) {
+
+              if (width > height) {
+
+                height =
+                  Math.round(
+                    height *
+                    maxSize /
+                    width
+                  );
+
+                width = maxSize;
+
+              } else {
+
+                width =
+                  Math.round(
+                    width *
+                    maxSize /
+                    height
+                  );
+
+                height = maxSize;
+              }
+            }
+
+            const canvas =
+              document.createElement("canvas");
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx =
+              canvas.getContext("2d");
+
+            ctx.drawImage(
+              img,
+              0,
+              0,
+              width,
+              height
+            );
+
+            canvas.toBlob(
+              function (blob) {
+
+                if (!blob) {
+
+                  reject(
+                    new Error(
+                      "Could not process image."
+                    )
+                  );
+
+                  return;
+                }
+
+                resolve(blob);
+
+              },
+              "image/jpeg",
+              0.8
+            );
+
+          };
+
+          img.onerror = function () {
+
+            reject(
+              new Error(
+                "Could not read image."
+              )
+            );
+
+          };
+
+          img.src =
+            event.target.result;
+
+        };
+
+        reader.onerror = function () {
+
+          reject(
+            new Error(
+              "Could not load image."
+            )
+          );
+
+        };
+
+        reader.readAsDataURL(file);
+
+      });
+
+    }
+
+
+    function blobToBase64(blob) {
+
+      return new Promise(
+        (resolve, reject) => {
+
+          const reader =
+            new FileReader();
+
+          reader.onloadend = function () {
+
+            if (!reader.result) {
+
+              reject(
+                new Error(
+                  "Could not convert image."
+                )
+              );
+
+              return;
+            }
+
+            resolve(
+              reader.result.split(",")[1]
+            );
+
+          };
+
+          reader.onerror = reject;
+
+          reader.readAsDataURL(blob);
+
+        }
+      );
+
+    }
+
+
+    function setStatus(
+      message,
+      isError = false
+    ) {
+
+      status.textContent = message;
+
+      status.classList.add("show");
+
+      if (isError) {
+        status.classList.add("error");
+      } else {
+        status.classList.remove("error");
+      }
+
+    }
+
+
+    function safe(value) {
+
+      if (
+        value === null ||
+        value === undefined ||
+        value === ""
+      ) {
+        return "Not identified";
+      }
+
+      return String(value);
+
+    }
+
+
+    function escapeHtml(value) {
+
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    function makeList(items) {
+
+      if (
+        !Array.isArray(items) ||
+        items.length === 0
+      ) {
+
+        return `
+          <p class="empty">
+            No information returned.
+          </p>
+        `;
+
+      }
+
+      return `
+        <ul class="list">
+
+          ${items.map(item => `
+            <li>
+              ${escapeHtml(item)}
+            </li>
+          `).join("")}
+
+        </ul>
+      `;
+
+    }
+
+
+    function buildCardInfo(data) {
+
+      const c =
+        data.card_information || {};
+
+      const rows = [
+
+        [
+          "Athlete / Character",
+          c.athlete_or_character
+        ],
+
+        ["Sport", c.sport],
+
+        ["Year", c.year],
+
+        ["Brand", c.brand],
+
+        ["Set", c.set],
+
+        ["Card Number", c.card_number],
+
+        [
+          "Parallel / Variant",
+          c.parallel_or_variant
+        ],
+
+        [
+          "Rookie Card",
+          c.rookie_card
+        ],
+
+        [
+          "Special Features",
+          c.special_features
+        ],
+
+        [
+          "Condition Observations",
+          c.condition_observations
+        ]
+
+      ];
+
+      return `
+        <table class="info-table">
+
+          ${rows.map(row => `
+
+            <tr>
+
+              <td>
+                ${escapeHtml(row[0])}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  safe(row[1])
+                )}
+              </td>
+
+            </tr>
+
+          `).join("")}
+
+        </table>
+      `;
+
+    }
+
+
+    function buildHistory(data) {
+
+      const history =
+        data.history || {};
+
+      return `
+
+        <div class="history-block">
+
+          <h3>
+            Card History
+          </h3>
+
+          <p>
+            ${escapeHtml(
+              safe(history.card_history)
+            )}
+          </p>
+
+        </div>
+
+        <div class="history-block">
+
+          <h3>
+            Athlete / Character History
+          </h3>
+
+          <p>
+            ${escapeHtml(
+              safe(
+                history.athlete_or_character_history
+              )
+            )}
+          </p>
+
+        </div>
+
+      `;
+
+    }
+
+
+    function buildResearchSources(data) {
+
+      const container =
+        document.getElementById(
+          "researchSources"
+        );
+
+      const sources =
+        Array.isArray(data.research_sources)
+          ? data.research_sources
+          : [];
+
+
+      if (sources.length === 0) {
+
+        container.innerHTML = `
+          <p class="empty">
+            No research sources were returned.
+          </p>
+        `;
+
+        return;
+      }
+
+
+      const validSources =
+        sources.filter(source => {
+
+          return (
+            source &&
+            typeof source.url === "string" &&
+            source.url.trim() !== ""
+          );
+
+        });
+
+
+      if (validSources.length === 0) {
+
+        container.innerHTML = `
+          <p class="empty">
+            Research was completed, but no
+            clickable source URLs were returned.
+          </p>
+        `;
+
+        return;
+      }
+
+
+      container.innerHTML =
+        validSources.map(
+          (source, index) => {
+
+            const title =
+              source.title ||
+              `Research Source ${index + 1}`;
+
+            let url =
+              source.url.trim();
+
+
+            /*
+             * Make sure the URL has a protocol.
+             */
+
+            if (
+              !url.startsWith("http://") &&
+              !url.startsWith("https://")
+            ) {
+
+              url =
+                "https://" + url;
+
+            }
+
+
+            /*
+             * Create the link directly with JavaScript.
+             * This makes the entire button clickable.
+             */
+
+            return `
+
+              <div class="source-card">
+
+                <div class="source-info">
+
+                  <div class="source-title">
+                    ${escapeHtml(title)}
+                  </div>
+
+                  <div class="source-url">
+                    ${escapeHtml(url)}
+                  </div>
+
+                </div>
+
+                <a
+                  class="source-link"
+                  href="${escapeHtml(url)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open ${escapeHtml(title)}"
+                >
+                  Open Source ↗
+                </a>
+
+              </div>
+
+            `;
+
+          }
+        ).join("");
+
+    }
+
+
+    function displayResults(data) {
+
+      const card =
+        data.card_information || {};
+
+      const athlete =
+        safe(card.athlete_or_character);
+
+      const year =
+        safe(card.year);
+
+      const brand =
+        safe(card.brand);
+
+      const setName =
+        safe(card.set);
+
+
+      document.getElementById(
+        "foundTitle"
+      ).textContent =
+        athlete !== "Not identified"
+          ? athlete
+          : "Card Identified";
+
+
+      const foundParts = [];
+
+
+      if (year !== "Not identified") {
+        foundParts.push(year);
+      }
+
+      if (brand !== "Not identified") {
+        foundParts.push(brand);
+      }
+
+      if (setName !== "Not identified") {
+        foundParts.push(setName);
+      }
+
+
+      document.getElementById(
+        "foundDetails"
+      ).textContent =
+        foundParts.length
+          ? foundParts.join(" • ")
+          : "MISTER E AI researched the uploaded card.";
+
+
+      document.getElementById(
+        "whyThisCard"
+      ).textContent =
+        safe(
+          data.why_this_card_matters
+        );
+
+
+      document.getElementById(
+        "cardInfoText"
+      ).innerHTML =
+        buildCardInfo(data);
+
+
+      document.getElementById(
+        "historyText"
+      ).innerHTML =
+        buildHistory(data);
+
+
+      document.getElementById(
+        "listingText"
+      ).textContent =
+        safe(
+          data.listing_description
+        );
+
+
+      document.getElementById(
+        "socialText"
+      ).innerHTML =
+        makeList(
+          data.social_media_post_ideas
+        );
+
+
+      const hashtags =
+        Array.isArray(data.hashtags)
+          ? data.hashtags
+          : [];
+
+
+      document.getElementById(
+        "hashtagsText"
+      ).innerHTML =
+        hashtags.length
+          ? hashtags.map(tag => {
+
+              let clean =
+                String(tag || "").trim();
+
+              if (
+                clean &&
+                !clean.startsWith("#")
+              ) {
+                clean = "#" + clean;
+              }
+
+              return `
+                <span class="hashtag">
+                  ${escapeHtml(clean)}
+                </span>
+              `;
+
+            }).join("")
+          : `
+              <span class="empty">
+                No hashtags returned.
+              </span>
+            `;
+
+
+      document.getElementById(
+        "contentText"
+      ).innerHTML =
+        makeList(
+          data.content_ideas
+        );
+
+
+      buildResearchSources(data);
+
+
+      results.classList.add("show");
+
+
+      results.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+    }
+
+
+    analyzeButton.addEventListener(
       "click",
       async function () {
 
         if (!selectedFrontFile) {
 
-          status.textContent =
-            "Please take or choose a photo of the front of the card first.";
+          setStatus(
+            "Please upload or take a photo of the front of the card.",
+            true
+          );
 
           return;
         }
 
 
-        button.disabled = true;
+        analyzeButton.disabled = true;
 
-        button.textContent =
-          "🔍 ANALYZING CARD...";
+        results.classList.remove("show");
 
-        status.textContent =
-          "Preparing your card images...";
+
+        setStatus(
+          "MISTER E AI is identifying the card and researching its story. This can take a little longer because it is checking the web..."
+        );
 
 
         try {
 
-          const front =
+          const frontBlob =
             await resizeImage(
               selectedFrontFile
             );
 
 
-          const back =
-            selectedBackFile
-              ? await resizeImage(
-                  selectedBackFile
-                )
-              : null;
+          const frontBase64 =
+            await blobToBase64(
+              frontBlob
+            );
 
 
-          status.textContent =
-            "Mister E AI is examining your card...";
+          let backBase64 = null;
+
+
+          if (selectedBackFile) {
+
+            const backBlob =
+              await resizeImage(
+                selectedBackFile
+              );
+
+            backBase64 =
+              await blobToBase64(
+                backBlob
+              );
+
+          }
+
+
+          const payload = {
+
+            front: frontBase64,
+
+            back: backBase64,
+
+            sport:
+              document.getElementById(
+                "sport"
+              ).value
+
+          };
 
 
           const response =
@@ -991,31 +1660,43 @@
                     "application/json"
                 },
 
-                body: JSON.stringify({
-
-                  front:
-                    front,
-
-                  back:
-                    back,
-
-                  sport:
-                    sportInput.value
-
-                })
+                body:
+                  JSON.stringify(payload)
               }
             );
 
 
-          const data =
-            await response.json();
+          let data;
+
+
+          try {
+
+            data =
+              await response.json();
+
+          } catch (error) {
+
+            throw new Error(
+              "The server returned an unexpected response."
+            );
+
+          }
 
 
           if (!response.ok) {
 
             throw new Error(
               data.error ||
-              "The card could not be analyzed."
+              "OpenAI request failed."
+            );
+
+          }
+
+
+          if (!data.card_information) {
+
+            throw new Error(
+              "MISTER E AI returned an incomplete analysis."
             );
 
           }
@@ -1024,21 +1705,25 @@
           displayResults(data);
 
 
+          setStatus(
+            "Card research complete!"
+          );
+
+
         } catch (error) {
 
           console.error(error);
 
-          status.textContent =
-            "Something went wrong: " +
-            error.message;
+          setStatus(
+            error.message ||
+            "Something went wrong while analyzing the card.",
+            true
+          );
 
 
         } finally {
 
-          button.disabled = false;
-
-          button.textContent =
-            "🔍 ANALYZE MY CARD";
+          analyzeButton.disabled = false;
 
         }
 
@@ -1046,552 +1731,166 @@
     );
 
 
-    /* ==============================
-       IMAGE RESIZING
-    ============================== */
+    newCardButton.addEventListener(
+      "click",
+      function () {
 
-    function resizeImage(file) {
-
-      return new Promise(
-        (resolve, reject) => {
-
-          const reader =
-            new FileReader();
+        selectedFrontFile = null;
+        selectedBackFile = null;
 
 
-          reader.onload =
-            function (event) {
+        frontCamera.value = "";
+        frontImage.value = "";
 
-              const image =
-                new Image();
-
-
-              image.onload =
-                function () {
-
-                  const maxSize =
-                    1400;
+        backCamera.value = "";
+        backImage.value = "";
 
 
-                  let width =
-                    image.width;
-
-                  let height =
-                    image.height;
+        frontPreview.src = "";
+        backPreview.src = "";
 
 
-                  if (
-                    width > maxSize ||
-                    height > maxSize
-                  ) {
+        frontPreview.classList.remove(
+          "show"
+        );
 
-                    if (width > height) {
+        backPreview.classList.remove(
+          "show"
+        );
 
-                      height =
-                        Math.round(
-                          height *
-                          maxSize /
-                          width
-                        );
 
-                      width =
-                        maxSize;
+        results.classList.remove(
+          "show"
+        );
 
-                    } else {
 
-                      width =
-                        Math.round(
-                          width *
-                          maxSize /
-                          height
-                        );
+        status.classList.remove(
+          "show"
+        );
 
-                      height =
-                        maxSize;
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+
+      }
+    );
+
+
+    document
+      .querySelectorAll(".copy-button")
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          async function () {
+
+            const targetId =
+              this.getAttribute(
+                "data-copy"
+              );
+
+            const target =
+              document.getElementById(
+                targetId
+              );
+
+            if (!target) return;
+
+
+            let text =
+              target.innerText || "";
+
+
+            if (
+              targetId ===
+              "cardInfoText"
+            ) {
+
+              const rows =
+                target.querySelectorAll(
+                  "tr"
+                );
+
+
+              text =
+                Array.from(rows)
+                  .map(row => {
+
+                    const cells =
+                      row.querySelectorAll(
+                        "td"
+                      );
+
+                    if (
+                      cells.length >= 2
+                    ) {
+
+                      return (
+                        cells[0].innerText +
+                        ": " +
+                        cells[1].innerText
+                      );
 
                     }
 
-                  }
+                    return "";
+
+                  })
+                  .filter(Boolean)
+                  .join("\n");
+
+            }
 
 
-                  const canvas =
-                    document.createElement(
-                      "canvas"
-                    );
+            try {
+
+              await navigator.clipboard
+                .writeText(text);
 
 
-                  canvas.width =
-                    width;
-
-                  canvas.height =
-                    height;
+              const original =
+                this.textContent;
 
 
-                  const context =
-                    canvas.getContext(
-                      "2d"
-                    );
+              this.textContent =
+                "✓ Copied";
 
 
-                  context.drawImage(
-                    image,
-                    0,
-                    0,
-                    width,
-                    height
+              this.classList.add(
+                "copied"
+              );
+
+
+              setTimeout(
+                () => {
+
+                  this.textContent =
+                    original;
+
+                  this.classList.remove(
+                    "copied"
                   );
 
+                },
+                1500
+              );
 
-                  resolve(
-                    canvas.toDataURL(
-                      "image/jpeg",
-                      0.8
-                    )
-                  );
 
-                };
+            } catch (error) {
 
+              console.error(
+                "Copy failed:",
+                error
+              );
 
-              image.onerror =
-                reject;
+            }
 
-
-              image.src =
-                event.target.result;
-
-            };
-
-
-          reader.onerror =
-            reject;
-
-
-          reader.readAsDataURL(file);
-
-        }
-      );
-
-    }
-
-
-    /* ==============================
-       DISPLAY RESULTS
-    ============================== */
-
-    function displayResults(data) {
-
-      const card =
-        data.card_information || {};
-
-      const history =
-        data.history || {};
-
-
-      const title =
-        card.title ||
-        "Trading Card";
-
-
-      const athlete =
-        card.athlete_or_character ||
-        "Unknown";
-
-
-      const year =
-        card.year ||
-        "Unknown";
-
-
-      const brand =
-        card.brand ||
-        "Unknown";
-
-
-      const set =
-        card.set ||
-        "Unknown";
-
-
-      const variant =
-        card.parallel_or_variant ||
-        "Not confirmed";
-
-
-      const rookie =
-        card.rookie_card ||
-        "Not confirmed";
-
-
-      let whyThisCardMatters =
-        "Mister E AI identified this card from the information visible in the uploaded images.";
-
-
-      if (
-        card.special_features &&
-        card.special_features !== "Unknown"
-      ) {
-
-        whyThisCardMatters =
-          card.special_features;
-
-      } else if (
-        rookie &&
-        rookie.toLowerCase()
-          .includes("yes")
-      ) {
-
-        whyThisCardMatters =
-          "This card is identified as a rookie card, which can make it particularly interesting to collectors.";
-
-      } else if (
-        variant &&
-        variant !== "Not confirmed"
-      ) {
-
-        whyThisCardMatters =
-          "The card appears to have a specific parallel or variant that may make it more interesting to collectors.";
-
-      }
-
-
-      results.innerHTML = `
-
-        <!-- MISTER E AI FOUND -->
-
-        <div class="found-box">
-
-          <h2>
-            🔎 MISTER E AI FOUND...
-          </h2>
-
-
-          <div class="found-title">
-            ${safe(athlete)}
-          </div>
-
-
-          <div class="found-details">
-
-            <strong>
-              ${safe(year)}
-            </strong>
-
-            &nbsp;•&nbsp;
-
-            <strong>
-              ${safe(brand)}
-            </strong>
-
-            &nbsp;•&nbsp;
-
-            <strong>
-              ${safe(set)}
-            </strong>
-
-            <br>
-
-            ${safe(title)}
-
-            <br>
-
-            ${safe(variant)}
-
-            <br>
-
-            Rookie Card:
-            ${safe(rookie)}
-
-          </div>
-
-
-          <div class="why-card">
-
-            <strong>
-              Why this card matters:
-            </strong>
-
-            <br><br>
-
-            ${safe(whyThisCardMatters)}
-
-          </div>
-
-        </div>
-
-
-        <!-- CARD INFORMATION -->
-
-        <div class="result-section">
-
-          <h2>
-            📋 Card Information
-          </h2>
-
-
-          <p>
-            <strong>Title:</strong>
-            ${safe(card.title)}
-          </p>
-
-
-          <p>
-            <strong>Athlete / Character:</strong>
-            ${safe(card.athlete_or_character)}
-          </p>
-
-
-          <p>
-            <strong>Sport:</strong>
-            ${safe(card.sport)}
-          </p>
-
-
-          <p>
-            <strong>Year:</strong>
-            ${safe(card.year)}
-          </p>
-
-
-          <p>
-            <strong>Brand:</strong>
-            ${safe(card.brand)}
-          </p>
-
-
-          <p>
-            <strong>Set:</strong>
-            ${safe(card.set)}
-          </p>
-
-
-          <p>
-            <strong>Card Number:</strong>
-            ${safe(card.card_number)}
-          </p>
-
-
-          <p>
-            <strong>Parallel / Variant:</strong>
-            ${safe(card.parallel_or_variant)}
-          </p>
-
-
-          <p>
-            <strong>Rookie Card:</strong>
-            ${safe(card.rookie_card)}
-          </p>
-
-
-          <p>
-            <strong>Special Features:</strong>
-            ${safe(card.special_features)}
-          </p>
-
-
-          <p>
-            <strong>Condition Observations:</strong>
-            ${safe(card.condition_observations)}
-          </p>
-
-        </div>
-
-
-        <!-- HISTORY -->
-
-        <div class="result-section">
-
-          <h2>
-            📖 History of the Card & Athlete
-          </h2>
-
-
-          <h3>
-            Card History
-          </h3>
-
-
-          <p>
-            ${safe(history.card_history)}
-          </p>
-
-
-          <h3>
-            Athlete / Character History
-          </h3>
-
-
-          <p>
-            ${safe(
-              history.athlete_or_character_history
-            )}
-          </p>
-
-        </div>
-
-
-        <!-- LISTING -->
-
-        <div class="result-section">
-
-          <h2>
-            🛒 Listing Description
-          </h2>
-
-
-          <p>
-            ${safe(data.listing_description)}
-          </p>
-
-        </div>
-
-
-        <!-- SOCIAL MEDIA -->
-
-        <div class="result-section">
-
-          <h2>
-            📱 Social Media Post Ideas
-          </h2>
-
-
-          ${makeList(
-            data.social_media_post_ideas
-          )}
-
-        </div>
-
-
-        <!-- HASHTAGS -->
-
-        <div class="result-section">
-
-          <h2>
-            #️⃣ Hashtags
-          </h2>
-
-
-          <p>
-            ${safe(
-              (data.hashtags || []).join(" ")
-            )}
-          </p>
-
-        </div>
-
-
-        <!-- CONTENT IDEAS -->
-
-        <div class="result-section">
-
-          <h2>
-            🎥 Content Ideas
-          </h2>
-
-
-          ${makeList(
-            data.content_ideas
-          )}
-
-        </div>
-
-      `;
-
-
-      status.textContent =
-        "✅ Card analysis complete!";
-
-
-      window.scrollTo({
-        top: results.offsetTop - 30,
-        behavior: "smooth"
-      });
-
-    }
-
-
-    /* ==============================
-       MAKE LIST
-    ============================== */
-
-    function makeList(items) {
-
-      if (
-        !Array.isArray(items) ||
-        items.length === 0
-      ) {
-
-        return "<p>None available.</p>";
-
-      }
-
-
-      return `
-
-        <ol>
-
-          ${items
-            .map(
-              item => `
-                <li>
-                  ${safe(item)}
-                </li>
-              `
-            )
-            .join("")
           }
-
-        </ol>
-
-      `;
-
-    }
-
-
-    /* ==============================
-       SAFE TEXT
-    ============================== */
-
-    function safe(value) {
-
-      if (
-        value === undefined ||
-        value === null ||
-        value === ""
-      ) {
-
-        return "Unknown";
-
-      }
-
-
-      return String(value)
-
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-
-        .replace(
-          /</g,
-          "&lt;"
-        )
-
-        .replace(
-          />/g,
-          "&gt;"
-        )
-
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-
-        .replace(
-          /'/g,
-          "&#039;"
         );
 
-    }
+      });
 
   </script>
 
