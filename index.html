@@ -227,197 +227,310 @@
 
   </div>
 
-export default async function handler(request, response) {
-  try {
-    if (request.method !== "POST") {
-      return response.status(405).json({
-        error: "Method not allowed"
-      });
+<script>
+  const button = document.getElementById("analyzeButton");
+  const frontInput = document.getElementById("frontImage");
+  const backInput = document.getElementById("backImage");
+  const sportInput = document.getElementById("sport");
+  const status = document.getElementById("status");
+
+  button.addEventListener("click", async function () {
+
+    if (!frontInput.files.length) {
+      status.textContent = "Please upload the front of the card first.";
+      return;
     }
 
-    const body = request.body;
-
-    if (!body || !body.front) {
-      return response.status(400).json({
-        error: "No card front image was received."
-      });
-    }
-
-    const sport = body.sport || "Other";
-
-    const images = [
-      {
-        type: "input_image",
-        image_url: body.front
-      }
-    ];
-
-    if (body.back) {
-      images.push({
-        type: "input_image",
-        image_url: body.back
-      });
-    }
-
-    const openAIResponse = await fetch(
-      "https://api.openai.com/v1/responses",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
-
-          input: [
-            {
-              role: "system",
-              content: [
-                {
-                  type: "input_text",
-                  text: `
-You are Mister E AI, an expert trading-card assistant.
-
-Analyze the uploaded trading card carefully.
-
-Sport/category:
-${sport}
-
-Use both the front and back when both are provided.
-
-IMPORTANT:
-- Never invent card information.
-- Only provide details that can be confirmed from the images or reliable general knowledge.
-- If something cannot be confirmed, say "Unknown" or "Not confirmed."
-- Do not assign a professional card grade.
-- Do not claim an exact market value.
-- Do not claim authenticity unless it can actually be established.
-- Make the results useful to collectors, sellers, and content creators.
-
-Return ONLY valid JSON in this exact structure:
-
-{
-  "card_information": {
-    "title": "",
-    "athlete_or_character": "",
-    "sport": "",
-    "year": "",
-    "brand": "",
-    "set": "",
-    "card_number": "",
-    "parallel_or_variant": "",
-    "rookie_card": "",
-    "special_features": "",
-    "condition_observations": ""
-  },
-
-  "history": {
-    "card_history": "",
-    "athlete_or_character_history": ""
-  },
-
-  "listing_description": "",
-
-  "social_media_post_ideas": [
-    "",
-    "",
-    ""
-  ],
-
-  "hashtags": [
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
-  ],
-
-  "content_ideas": [
-    "",
-    "",
-    "",
-    "",
-    ""
-  ]
-}
-
-Card Information:
-Identify as many confirmed details as possible.
-
-History:
-Explain the history of the card/set and the athlete or character.
-Do not invent specific historical facts.
-
-Listing Description:
-Write an attractive marketplace listing.
-
-Social Media Post Ideas:
-Create three different social media post ideas.
-
-Hashtags:
-Provide useful hashtags for the card.
-
-Content Ideas:
-Create five video/content ideas a collector could make using this card.
-
-Accuracy is more important than filling every field.
-`
-                }
-              ]
-            },
-
-            {
-              role: "user",
-              content: [
-                ...images,
-                {
-                  type: "input_text",
-                  text: "Analyze this trading card and create the complete Mister E AI content package."
-                }
-              ]
-            }
-          ]
-        })
-      }
-    );
-
-    const resultText = await openAIResponse.text();
-
-    if (!openAIResponse.ok) {
-      return response.status(openAIResponse.status).json({
-        error: "OpenAI request failed.",
-        details: resultText
-      });
-    }
-
-    const data = JSON.parse(resultText);
-
-    let result;
+    button.disabled = true;
+    button.textContent = "🔍 ANALYZING CARD...";
+    status.textContent = "Preparing your card images...";
 
     try {
-      result = JSON.parse(data.output_text);
-    } catch {
-      return response.status(500).json({
-        error: "OpenAI returned an unexpected format.",
-        raw: data.output_text || ""
+
+      const front = await resizeImage(frontInput.files[0]);
+      const back = backInput.files.length
+        ? await resizeImage(backInput.files[0])
+        : null;
+
+      status.textContent = "Mister E AI is examining your card...";
+
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          front: front,
+          back: back,
+          sport: sportInput.value
+        })
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "The card could not be analyzed."
+        );
+      }
+
+      displayResults(data);
+
+    } catch (error) {
+
+      console.error(error);
+
+      status.textContent =
+        "Something went wrong: " + error.message;
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = "🔍 ANALYZE MY CARD";
+
     }
+  });
 
-    return response.status(200).json(result);
 
-  } catch (error) {
+  function resizeImage(file) {
 
-    console.error(error);
+    return new Promise((resolve, reject) => {
 
-    return response.status(500).json({
-      error: error.message || "Something went wrong analyzing the card."
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+
+        const image = new Image();
+
+        image.onload = function() {
+
+          const maxSize = 1400;
+
+          let width = image.width;
+          let height = image.height;
+
+          if (width > maxSize || height > maxSize) {
+
+            if (width > height) {
+              height = Math.round(height * maxSize / width);
+              width = maxSize;
+            } else {
+              width = Math.round(width * maxSize / height);
+              height = maxSize;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const context = canvas.getContext("2d");
+
+          context.drawImage(
+            image,
+            0,
+            0,
+            width,
+            height
+          );
+
+          resolve(
+            canvas.toDataURL("image/jpeg", 0.8)
+          );
+        };
+
+        image.onerror = reject;
+
+        image.src = event.target.result;
+      };
+
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
     });
   }
-}
+
+
+  function displayResults(data) {
+
+    const results = document.createElement("div");
+
+    results.style.marginTop = "35px";
+    results.style.textAlign = "left";
+
+    results.innerHTML = `
+      <div style="
+        background:#f8fafc;
+        border-radius:15px;
+        padding:25px;
+        margin-bottom:20px;
+      ">
+        <h2>📋 Card Information</h2>
+
+        <p><strong>Title:</strong>
+        ${safe(data.card_information?.title)}</p>
+
+        <p><strong>Athlete / Character:</strong>
+        ${safe(data.card_information?.athlete_or_character)}</p>
+
+        <p><strong>Sport:</strong>
+        ${safe(data.card_information?.sport)}</p>
+
+        <p><strong>Year:</strong>
+        ${safe(data.card_information?.year)}</p>
+
+        <p><strong>Brand:</strong>
+        ${safe(data.card_information?.brand)}</p>
+
+        <p><strong>Set:</strong>
+        ${safe(data.card_information?.set)}</p>
+
+        <p><strong>Card Number:</strong>
+        ${safe(data.card_information?.card_number)}</p>
+
+        <p><strong>Parallel / Variant:</strong>
+        ${safe(data.card_information?.parallel_or_variant)}</p>
+
+        <p><strong>Rookie Card:</strong>
+        ${safe(data.card_information?.rookie_card)}</p>
+
+        <p><strong>Special Features:</strong>
+        ${safe(data.card_information?.special_features)}</p>
+
+        <p><strong>Condition Observations:</strong>
+        ${safe(data.card_information?.condition_observations)}</p>
+      </div>
+
+
+      <div style="
+        background:#f8fafc;
+        border-radius:15px;
+        padding:25px;
+        margin-bottom:20px;
+      ">
+        <h2>📖 History of the Card & Athlete</h2>
+
+        <h3>Card History</h3>
+
+        <p>
+          ${safe(data.history?.card_history)}
+        </p>
+
+        <h3>Athlete / Character History</h3>
+
+        <p>
+          ${safe(data.history?.athlete_or_character_history)}
+        </p>
+      </div>
+
+
+      <div style="
+        background:#f8fafc;
+        border-radius:15px;
+        padding:25px;
+        margin-bottom:20px;
+      ">
+        <h2>🛒 Listing Description</h2>
+
+        <p>
+          ${safe(data.listing_description)}
+        </p>
+      </div>
+
+
+      <div style="
+        background:#f8fafc;
+        border-radius:15px;
+        padding:25px;
+        margin-bottom:20px;
+      ">
+        <h2>📱 Social Media Post Ideas</h2>
+
+        ${makeList(data.social_media_post_ideas)}
+      </div>
+
+
+      <div style="
+        background:#f8fafc;
+        border-radius:15px;
+        padding:25px;
+        margin-bottom:20px;
+      ">
+        <h2>#️⃣ Hashtags</h2>
+
+        <p>
+          ${safe((data.hashtags || []).join(" "))}
+        </p>
+      </div>
+
+
+      <div style="
+        background:#f8fafc;
+        border-radius:15px;
+        padding:25px;
+      ">
+        <h2>🎥 Content Ideas</h2>
+
+        ${makeList(data.content_ideas)}
+      </div>
+    `;
+
+
+    const oldResults =
+      document.getElementById("results");
+
+    if (oldResults) {
+      oldResults.remove();
+    }
+
+    results.id = "results";
+
+    document
+      .querySelector(".main-card")
+      .appendChild(results);
+
+    status.textContent =
+      "✅ Card analysis complete!";
+  }
+
+
+  function makeList(items) {
+
+    if (!Array.isArray(items)) {
+      return "<p>None available.</p>";
+    }
+
+    return `
+      <ol>
+        ${items.map(item => `
+          <li style="margin-bottom:10px;">
+            ${safe(item)}
+          </li>
+        `).join("")}
+      </ol>
+    `;
+  }
+
+
+  function safe(value) {
+
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return "Unknown";
+    }
+
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+</script>
 
 </body>
 </html>
