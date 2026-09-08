@@ -1,69 +1,36 @@
-export default async function handler(request) {
+export default async function handler(request, response) {
   try {
     if (request.method !== "POST") {
-      return new Response(
-        JSON.stringify({ error: "Method not allowed" }),
-        {
-          status: 405,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+      return response.status(405).json({
+        error: "Method not allowed"
+      });
     }
 
-    const formData = await request.formData();
+    const body = request.body;
 
-    const front = formData.get("front");
-    const back = formData.get("back");
-    const sport = formData.get("sport") || "Other";
-
-    if (!front) {
-      return new Response(
-        JSON.stringify({
-          error: "Please upload the front of the card."
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+    if (!body || !body.front) {
+      return response.status(400).json({
+        error: "No card front image was received."
+      });
     }
 
-    async function fileToDataUrl(file) {
-      const bytes = await file.arrayBuffer();
-
-      let binary = "";
-      const data = new Uint8Array(bytes);
-
-      for (let i = 0; i < data.length; i++) {
-        binary += String.fromCharCode(data[i]);
-      }
-
-      const base64 = btoa(binary);
-      const mime = file.type || "image/jpeg";
-
-      return `data:${mime};base64,${base64}`;
-    }
-
-    const frontImage = await fileToDataUrl(front);
-    const backImage = back
-      ? await fileToDataUrl(back)
-      : null;
+    const sport = body.sport || "Other";
 
     const images = [
       {
         type: "input_image",
-        image_url: frontImage
+        image_url: body.front
       }
     ];
 
-    if (backImage) {
+    if (body.back) {
       images.push({
         type: "input_image",
-        image_url: backImage
+        image_url: body.back
       });
     }
 
-    const response = await fetch(
+    const openAIResponse = await fetch(
       "https://api.openai.com/v1/responses",
       {
         method: "POST",
@@ -94,7 +61,7 @@ IMPORTANT:
 - Never invent card information.
 - Only provide details that can be confirmed from the images or reliable general knowledge.
 - If something cannot be confirmed, say "Unknown" or "Not confirmed."
-- Do not assign a professional grade.
+- Do not assign a professional card grade.
 - Do not claim an exact market value.
 - Do not claim authenticity unless it can actually be established.
 - Make the results useful to collectors, sellers, and content creators.
@@ -153,7 +120,8 @@ Card Information:
 Identify as many confirmed details as possible.
 
 History:
-Explain the history of the card/set and the athlete or character. Do not invent specific historical facts.
+Explain the history of the card/set and the athlete or character.
+Do not invent specific historical facts.
 
 Listing Description:
 Write an attractive marketplace listing.
@@ -166,10 +134,13 @@ Provide useful hashtags for the card.
 
 Content Ideas:
 Create five video/content ideas a collector could make using this card.
+
+Accuracy is more important than filling every field.
 `
                 }
               ]
             },
+
             {
               role: "user",
               content: [
@@ -185,58 +156,36 @@ Create five video/content ideas a collector could make using this card.
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
+    const resultText = await openAIResponse.text();
 
-      return new Response(
-        JSON.stringify({
-          error: "OpenAI request failed.",
-          details: errorText
-        }),
-        {
-          status: response.status,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+    if (!openAIResponse.ok) {
+      return response.status(openAIResponse.status).json({
+        error: "OpenAI request failed.",
+        details: resultText
+      });
     }
 
-    const data = await response.json();
-
-    const text = data.output_text;
+    const data = JSON.parse(resultText);
 
     let result;
 
     try {
-      result = JSON.parse(text);
+      result = JSON.parse(data.output_text);
     } catch {
-      result = {
-        error: "The AI returned an unexpected response.",
-        raw: text
-      };
+      return response.status(500).json({
+        error: "OpenAI returned an unexpected format.",
+        raw: data.output_text || ""
+      });
     }
 
-    return new Response(
-      JSON.stringify(result),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return response.status(200).json(result);
 
   } catch (error) {
 
     console.error(error);
 
-    return new Response(
-      JSON.stringify({
-        error:
-          error?.message ||
-          "Something went wrong analyzing the card."
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return response.status(500).json({
+      error: error.message || "Something went wrong analyzing the card."
+    });
   }
 }
