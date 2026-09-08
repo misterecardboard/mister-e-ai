@@ -58,6 +58,7 @@
       color: #666;
       font-size: 17px;
       margin-bottom: 30px;
+      line-height: 1.5;
     }
 
     .upload-grid {
@@ -84,11 +85,39 @@
     .upload-box p {
       color: #777;
       font-size: 14px;
+      margin-bottom: 15px;
     }
 
-    input[type="file"] {
-      width: 100%;
-      margin-top: 12px;
+    .button-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .photo-button {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 9px;
+      background: #111827;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .photo-button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .photo-button:hover {
+      opacity: 0.9;
+    }
+
+    .hidden-file {
+      display: none;
     }
 
     .card-preview {
@@ -100,6 +129,14 @@
       border-radius: 12px;
       background: white;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .preview-label {
+      display: none;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
     }
 
     .field {
@@ -148,9 +185,8 @@
       margin-top: 18px;
       color: #666;
       min-height: 20px;
+      line-height: 1.5;
     }
-
-    /* MISTER E AI FOUND */
 
     .found-box {
       margin-top: 35px;
@@ -183,11 +219,9 @@
       margin-top: 20px;
       padding: 18px;
       border-radius: 12px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       line-height: 1.6;
     }
-
-    /* RESULT SECTIONS */
 
     .results {
       margin-top: 30px;
@@ -229,6 +263,11 @@
     }
 
     @media (max-width: 700px) {
+
+      .container {
+        padding: 25px 14px;
+      }
+
       .upload-grid {
         grid-template-columns: 1fr;
       }
@@ -238,7 +277,19 @@
       }
 
       .main-card {
-        padding: 25px 20px;
+        padding: 25px 18px;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
+
+      .photo-button {
+        width: 100%;
+      }
+
+      .found-box {
+        padding: 24px 18px;
       }
     }
   </style>
@@ -258,27 +309,67 @@
       <h1>Analyze Your Trading Card</h1>
 
       <div class="intro">
-        Upload the front and back of your card and Mister E AI
-        will help uncover the details and story behind it.
+        Take a photo or choose an existing image of your card.
+        Upload both sides for the most complete analysis.
       </div>
 
-      <!-- UPLOAD AREA -->
+
+      <!-- ==============================
+           UPLOAD AREA
+      =============================== -->
 
       <div class="upload-grid">
+
+
+        <!-- CARD FRONT -->
 
         <div class="upload-box">
 
           <h3>📸 Card Front</h3>
 
           <p>
-            Upload a clear photo of the front.
+            Take a photo or choose an existing image.
           </p>
+
+          <div class="button-row">
+
+            <label
+              class="photo-button"
+              for="frontCamera"
+            >
+              📷 Take Photo
+            </label>
+
+            <label
+              class="photo-button secondary"
+              for="frontImage"
+            >
+              🖼️ Choose Image
+            </label>
+
+          </div>
+
+
+          <!-- Camera input -->
+
+          <input
+            type="file"
+            id="frontCamera"
+            class="hidden-file"
+            accept="image/*"
+            capture="environment"
+          >
+
+
+          <!-- Existing image input -->
 
           <input
             type="file"
             id="frontImage"
+            class="hidden-file"
             accept="image/*"
           >
+
 
           <img
             id="frontPreview"
@@ -286,22 +377,65 @@
             alt="Card front preview"
           >
 
+          <div
+            id="frontPreviewLabel"
+            class="preview-label"
+          >
+            Front image selected ✓
+          </div>
+
         </div>
 
+
+        <!-- CARD BACK -->
 
         <div class="upload-box">
 
           <h3>📸 Card Back</h3>
 
           <p>
-            Upload the back if available.
+            Take a photo or choose an existing image.
           </p>
+
+          <div class="button-row">
+
+            <label
+              class="photo-button"
+              for="backCamera"
+            >
+              📷 Take Photo
+            </label>
+
+            <label
+              class="photo-button secondary"
+              for="backImage"
+            >
+              🖼️ Choose Image
+            </label>
+
+          </div>
+
+
+          <!-- Camera input -->
+
+          <input
+            type="file"
+            id="backCamera"
+            class="hidden-file"
+            accept="image/*"
+            capture="environment"
+          >
+
+
+          <!-- Existing image input -->
 
           <input
             type="file"
             id="backImage"
+            class="hidden-file"
             accept="image/*"
           >
+
 
           <img
             id="backPreview"
@@ -309,12 +443,21 @@
             alt="Card back preview"
           >
 
+          <div
+            id="backPreviewLabel"
+            class="preview-label"
+          >
+            Back image selected ✓
+          </div>
+
         </div>
 
       </div>
 
 
-      <!-- SPORT -->
+      <!-- ==============================
+           SPORT
+      =============================== -->
 
       <div class="field">
 
@@ -361,7 +504,9 @@
       </div>
 
 
-      <!-- ANALYZE BUTTON -->
+      <!-- ==============================
+           ANALYZE
+      =============================== -->
 
       <button
         class="analyze-button"
@@ -377,7 +522,9 @@
       ></div>
 
 
-      <!-- RESULTS APPEAR HERE -->
+      <!-- ==============================
+           RESULTS
+      =============================== -->
 
       <div
         id="results"
@@ -409,6 +556,12 @@
     const backInput =
       document.getElementById("backImage");
 
+    const frontCamera =
+      document.getElementById("frontCamera");
+
+    const backCamera =
+      document.getElementById("backCamera");
+
     const sportInput =
       document.getElementById("sport");
 
@@ -421,61 +574,137 @@
     const backPreview =
       document.getElementById("backPreview");
 
+    const frontPreviewLabel =
+      document.getElementById("frontPreviewLabel");
+
+    const backPreviewLabel =
+      document.getElementById("backPreviewLabel");
+
     const results =
       document.getElementById("results");
 
 
     /* ==========================================
-       FRONT IMAGE PREVIEW
+       SHOW FRONT IMAGE
+    ========================================== */
+
+    function showFrontImage(file) {
+
+      if (!file) {
+        return;
+      }
+
+      frontInput._selectedFile = file;
+
+      frontPreview.src =
+        URL.createObjectURL(file);
+
+      frontPreview.style.display =
+        "block";
+
+      frontPreviewLabel.style.display =
+        "block";
+    }
+
+
+    /* ==========================================
+       SHOW BACK IMAGE
+    ========================================== */
+
+    function showBackImage(file) {
+
+      if (!file) {
+        return;
+      }
+
+      backInput._selectedFile = file;
+
+      backPreview.src =
+        URL.createObjectURL(file);
+
+      backPreview.style.display =
+        "block";
+
+      backPreviewLabel.style.display =
+        "block";
+    }
+
+
+    /* ==========================================
+       FRONT - CHOOSE IMAGE
     ========================================== */
 
     frontInput.addEventListener(
       "change",
       function () {
 
-        if (!frontInput.files.length) {
+        if (frontInput.files.length) {
 
-          frontPreview.style.display = "none";
+          showFrontImage(
+            frontInput.files[0]
+          );
 
-          return;
         }
-
-        const file =
-          frontInput.files[0];
-
-        frontPreview.src =
-          URL.createObjectURL(file);
-
-        frontPreview.style.display =
-          "block";
 
       }
     );
 
 
     /* ==========================================
-       BACK IMAGE PREVIEW
+       FRONT - CAMERA
+    ========================================== */
+
+    frontCamera.addEventListener(
+      "change",
+      function () {
+
+        if (frontCamera.files.length) {
+
+          showFrontImage(
+            frontCamera.files[0]
+          );
+
+        }
+
+      }
+    );
+
+
+    /* ==========================================
+       BACK - CHOOSE IMAGE
     ========================================== */
 
     backInput.addEventListener(
       "change",
       function () {
 
-        if (!backInput.files.length) {
+        if (backInput.files.length) {
 
-          backPreview.style.display = "none";
+          showBackImage(
+            backInput.files[0]
+          );
 
-          return;
         }
 
-        const file =
-          backInput.files[0];
+      }
+    );
 
-        backPreview.src =
-          URL.createObjectURL(file);
 
-        backPreview.style.display =
-          "block";
+    /* ==========================================
+       BACK - CAMERA
+    ========================================== */
+
+    backCamera.addEventListener(
+      "change",
+      function () {
+
+        if (backCamera.files.length) {
+
+          showBackImage(
+            backCamera.files[0]
+          );
+
+        }
 
       }
     );
@@ -489,10 +718,24 @@
       "click",
       async function () {
 
-        if (!frontInput.files.length) {
+        const frontFile =
+          frontInput._selectedFile ||
+          (frontInput.files.length
+            ? frontInput.files[0]
+            : null);
+
+
+        const backFile =
+          backInput._selectedFile ||
+          (backInput.files.length
+            ? backInput.files[0]
+            : null);
+
+
+        if (!frontFile) {
 
           status.textContent =
-            "Please upload the front of the card first.";
+            "Please take or choose a photo of the front of the card first.";
 
           return;
         }
@@ -509,18 +752,16 @@
 
         try {
 
-          /* Resize images before sending */
-
           const front =
             await resizeImage(
-              frontInput.files[0]
+              frontFile
             );
 
 
           const back =
-            backInput.files.length
+            backFile
               ? await resizeImage(
-                  backInput.files[0]
+                  backFile
                 )
               : null;
 
@@ -528,8 +769,6 @@
           status.textContent =
             "Mister E AI is examining your card...";
 
-
-          /* Send JSON to Vercel API */
 
           const response =
             await fetch(
@@ -544,9 +783,11 @@
 
                 body: JSON.stringify({
 
-                  front: front,
+                  front:
+                    front,
 
-                  back: back,
+                  back:
+                    back,
 
                   sport:
                     sportInput.value
@@ -569,8 +810,6 @@
 
           }
 
-
-          /* Display results */
 
           displayResults(data);
 
@@ -738,8 +977,6 @@
         data.history || {};
 
 
-      /* Build the big "FOUND" summary */
-
       const title =
         card.title ||
         "Trading Card";
@@ -809,10 +1046,6 @@
 
       results.innerHTML = `
 
-        <!-- =================================
-             MISTER E AI FOUND
-        ================================== -->
-
         <div class="found-box">
 
           <h2>
@@ -830,7 +1063,7 @@
             </strong>
 
             •
-            
+
             <strong>
               ${safe(brand)}
             </strong>
@@ -871,10 +1104,6 @@
 
         </div>
 
-
-        <!-- =================================
-             CARD INFORMATION
-        ================================== -->
 
         <div class="result-section">
 
@@ -940,10 +1169,6 @@
         </div>
 
 
-        <!-- =================================
-             HISTORY
-        ================================== -->
-
         <div class="result-section">
 
           <h2>
@@ -971,10 +1196,6 @@
         </div>
 
 
-        <!-- =================================
-             LISTING
-        ================================== -->
-
         <div class="result-section">
 
           <h2>
@@ -988,10 +1209,6 @@
         </div>
 
 
-        <!-- =================================
-             SOCIAL MEDIA
-        ================================== -->
-
         <div class="result-section">
 
           <h2>
@@ -1004,10 +1221,6 @@
 
         </div>
 
-
-        <!-- =================================
-             HASHTAGS
-        ================================== -->
 
         <div class="result-section">
 
@@ -1023,10 +1236,6 @@
 
         </div>
 
-
-        <!-- =================================
-             CONTENT IDEAS
-        ================================== -->
 
         <div class="result-section">
 
@@ -1088,7 +1297,7 @@
 
 
     /* ==========================================
-       SAFELY DISPLAY AI TEXT
+       SAFE TEXT
     ========================================== */
 
     function safe(value) {
