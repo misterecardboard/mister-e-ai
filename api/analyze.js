@@ -1,197 +1,67 @@
 export default async function handler(request, response) {
+  if (request.method !== "POST") {
+    return response.status(405).json({
+      error: "Method not allowed"
+    });
+  }
+
   try {
+    const body = request.body || {};
 
-    /* ==========================================
-       BASIC REQUEST CHECK
-    ========================================== */
+    const front = body.front;
+    const back = body.back || null;
+    const sport = body.sport || "Auto Detect";
 
-    if (request.method !== "POST") {
-      return response.status(405).json({
-        error: "Method not allowed"
-      });
-    }
-
-
-    /* ==========================================
-       READ REQUEST
-    ========================================== */
-
-    const body = request.body;
-
-    if (!body || !body.front) {
+    if (!front) {
       return response.status(400).json({
-        error: "No card front image was received."
+        error: "Front image is required."
       });
     }
-
-
-    const sport =
-      body.sport || "Other";
-
-
-    /* ==========================================
-       BUILD IMAGE INPUT
-    ========================================== */
 
     const images = [
-
       {
         type: "input_image",
-        image_url: body.front
+        image_url: `data:image/jpeg;base64,${front}`
       }
-
     ];
 
-
-    if (body.back) {
-
+    if (back) {
       images.push({
-
         type: "input_image",
-
-        image_url: body.back
-
+        image_url: `data:image/jpeg;base64,${back}`
       });
-
     }
 
+    /*
+     * Keep the prompt short and focused.
+     * The previous version was generating a very large request,
+     * which contributed to the TPM rate-limit problem.
+     */
 
-    /* ==========================================
-       MISTER E AI RESEARCH PROMPT
-    ========================================== */
+    const prompt = `
+You are MISTER E AI, an expert trading-card identification and research assistant.
 
-    const systemPrompt = `
+Analyze the uploaded trading card ${back ? "front and back" : "front"}.
 
-You are MISTER E AI.
+Category selected by user: ${sport}
 
-You are an expert trading-card identification,
-research, collecting, and content-creation assistant.
+Use web research to verify important identification and historical facts.
 
-Your job is to analyze the uploaded trading card,
-identify it as accurately as possible, research the
-card and the athlete/character using the web, and
-then create a complete collector/content package.
+Priorities:
+1. Identify the exact card when possible.
+2. Research the card/set and athlete or character.
+3. Create useful content for a collector or seller.
 
-SPORT / CATEGORY:
-${sport}
-
-
-IMPORTANT WORKFLOW:
-
-STEP 1 — IDENTIFY THE CARD
-
-Carefully examine the front and back images.
-
-Identify as many of the following as possible:
-
-- Athlete or character
-- Sport
-- Card year
-- Manufacturer
-- Brand
-- Set
-- Series
-- Card number
-- Rookie card status
-- Insert
-- Parallel
-- Variation
-- Serial numbering
-- Autograph
-- Memorabilia/relic
-- Special features
-- Visible condition observations
-
-
-STEP 2 — RESEARCH THE CARD
-
-You MUST use web search when possible.
-
-Search for the identified card, set, athlete/character,
-and relevant historical information.
-
-Use reputable and relevant sources.
-
-Prioritize:
-
-- Manufacturer information
-- Official athlete/team information
-- Major sports organizations
-- Reputable card databases
-- Established hobby/card publications
-- Reliable historical sources
-
-Do not treat a random marketplace listing as proof
-of a card's identity.
-
-If sources disagree, acknowledge the uncertainty.
-
-
-STEP 3 — RESEARCH THE ATHLETE OR CHARACTER
-
-Find useful historical information that helps explain
-why the athlete or character is significant.
-
-For athletes, consider:
-
-- Career
-- Championships
-- Awards
-- Major accomplishments
-- Hall of Fame status
-- Important career moments
-- Historical significance
-
-For fictional characters, consider:
-
-- Origin
-- Important appearances
-- Franchise significance
-- Major storylines
-- Historical importance
-
-
-STEP 4 — EXPLAIN WHY THE CARD MATTERS
-
-Create a concise explanation that a collector would
-actually find interesting.
-
-Do not simply repeat the card information.
-
-Explain what makes this particular card interesting.
-
-
-ACCURACY RULES:
-
-- Never invent card information.
-- Never invent historical facts.
-- Never guess a card number.
-- Never guess a parallel.
-- Never guess a serial number.
-- Never claim a card is a rookie unless supported.
-- Never claim authenticity.
+IMPORTANT ACCURACY RULES:
+- Never invent card numbers, parallels, serial numbers, print runs, or dates.
+- Never call a card a rookie card unless reliable evidence supports it.
+- Never claim a card is authentic.
 - Never assign a professional grade.
-- Never give an exact market value unless specifically
-  supported by reliable information.
-- If something cannot be confirmed, say "Unknown" or
-  "Not confirmed."
-- Clearly distinguish visible information from researched
-  information.
+- Do not provide an exact market value unless reliable research clearly supports it.
+- If something cannot be verified, say "Not verified."
+- Separate what is visible on the card from information learned through research.
 
-
-STEP 5 — CREATE CONTENT
-
-After researching the card, create:
-
-1. Card Information
-2. History of the Card & Athlete / Character
-3. Listing Description
-4. Social Media Post Ideas
-5. Hashtags
-6. Content Ideas
-
-
-RETURN ONLY VALID JSON.
+Return ONLY valid JSON. No markdown. No explanation outside the JSON.
 
 Use exactly this structure:
 
@@ -209,22 +79,17 @@ Use exactly this structure:
     "special_features": "",
     "condition_observations": ""
   },
-
   "history": {
     "card_history": "",
     "athlete_or_character_history": ""
   },
-
   "why_this_card_matters": "",
-
   "listing_description": "",
-
   "social_media_post_ideas": [
     "",
     "",
     ""
   ],
-
   "hashtags": [
     "",
     "",
@@ -235,7 +100,6 @@ Use exactly this structure:
     "",
     ""
   ],
-
   "content_ideas": [
     "",
     "",
@@ -245,48 +109,42 @@ Use exactly this structure:
   ]
 }
 
-Remember:
-
-The card images are the primary source for
-identification.
-
-Web research is used to verify and expand the
-historical information.
-
-Accuracy is more important than filling every field.
-
+Keep every field concise but useful.
 `;
 
+    const apiKey = process.env.OPENAI_API_KEY;
 
-    /* ==========================================
-       CALL OPENAI
-    ========================================== */
+    if (!apiKey) {
+      return response.status(500).json({
+        error: "OPENAI_API_KEY is not configured."
+      });
+    }
 
-    const openAIResponse = await fetch(
+    const openaiResponse = await fetch(
       "https://api.openai.com/v1/responses",
       {
-
         method: "POST",
 
         headers: {
-
-          "Content-Type":
-            "application/json",
-
-          "Authorization":
-            `Bearer ${process.env.OPENAI_API_KEY}`
-
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
         },
 
         body: JSON.stringify({
+          model: "gpt-5.6-luna",
 
-          model:
-            process.env.OPENAI_MODEL ||
-            "gpt-5.6-luna",
-
-
-          /* Force the model to have access
-             to current web information */
+          input: [
+            {
+              role: "user",
+              content: [
+                ...images,
+                {
+                  type: "input_text",
+                  text: prompt
+                }
+              ]
+            }
+          ],
 
           tools: [
             {
@@ -294,277 +152,148 @@ Accuracy is more important than filling every field.
             }
           ],
 
+          tool_choice: "required",
 
-          /* Require the model to use a tool */
-
-          tool_choice:
-            "required",
-
-
-          input: [
-
-            /* ==========================
-               SYSTEM INSTRUCTIONS
-            =========================== */
-
-            {
-              role: "system",
-
-              content: [
-
-                {
-                  type: "input_text",
-
-                  text:
-                    systemPrompt
-
-                }
-
-              ]
-
-            },
-
-
-            /* ==========================
-               CARD IMAGES
-            =========================== */
-
-            {
-              role: "user",
-
-              content: [
-
-                ...images,
-
-                {
-
-                  type: "input_text",
-
-                  text: `
-Analyze these trading card images.
-
-First identify the card as accurately as possible.
-
-Then use web search to research the card,
-the set, and the athlete or character.
-
-Finally create the complete MISTER E AI
-collector and creator package.
-
-Do not invent information.
-`
-                }
-
-              ]
-
-            }
-
-          ]
-
+          /*
+           * Limit the amount of generated text.
+           * This helps keep requests predictable and efficient.
+           */
+          max_output_tokens: 6000
         })
-
       }
     );
 
+    const data = await openaiResponse.json();
 
-    /* ==========================================
-       READ OPENAI RESPONSE
-    ========================================== */
-
-    const resultText =
-      await openAIResponse.text();
-
-
-    if (!openAIResponse.ok) {
-
+    if (!openaiResponse.ok) {
       console.error(
         "OpenAI API Error:",
-        resultText
+        JSON.stringify(data, null, 2)
       );
 
-
-      return response
-        .status(openAIResponse.status)
-        .json({
-
-          error:
-            "OpenAI request failed.",
-
-          details:
-            resultText
-
-        });
-
+      return response.status(openaiResponse.status).json({
+        error:
+          data?.error?.message ||
+          "OpenAI request failed."
+      });
     }
 
-
-    const data =
-      JSON.parse(resultText);
-
-
-    /* ==========================================
-       COLLECT MODEL TEXT
-    ========================================== */
-
+    /*
+     * Extract text from the raw Responses API response.
+     */
     let outputText = "";
 
+    const output = Array.isArray(data.output)
+      ? data.output
+      : [];
 
-    if (Array.isArray(data.output)) {
-
-      for (
-        const item of data.output
-      ) {
-
-        if (
-          Array.isArray(
-            item.content
-          )
-        ) {
-
-          for (
-            const content
-            of item.content
-          ) {
-
-            if (
-              content.type ===
-                "output_text" &&
-              content.text
-            ) {
-
-              outputText +=
-                content.text;
-
-            }
-
-          }
-
-        }
-
+    for (const item of output) {
+      if (!Array.isArray(item.content)) {
+        continue;
       }
 
+      for (const content of item.content) {
+        if (
+          content &&
+          content.type === "output_text" &&
+          typeof content.text === "string"
+        ) {
+          outputText += content.text;
+        }
+      }
     }
-
 
     if (!outputText) {
+      console.error(
+        "OpenAI returned no output text:",
+        JSON.stringify(data, null, 2)
+      );
 
       return response.status(500).json({
-
         error:
-          "OpenAI returned no text output.",
-
-        details:
-          data
-
+          "OpenAI returned no analysis."
       });
-
     }
 
-
-    /* ==========================================
-       PARSE JSON
-    ========================================== */
+    /*
+     * Clean possible markdown code fences just in case.
+     */
+    outputText = outputText
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
 
     let result;
 
-
     try {
-
-      result =
-        JSON.parse(outputText);
-
-    } catch (error) {
+      result = JSON.parse(outputText);
+    } catch (parseError) {
 
       console.error(
-        "JSON parsing error:",
+        "JSON Parse Error:",
+        parseError
+      );
+
+      console.error(
+        "OpenAI Output:",
         outputText
       );
 
-
       return response.status(500).json({
-
         error:
-          "OpenAI returned text that was not valid JSON.",
-
-        raw:
-          outputText
-
+          "MISTER E AI returned an invalid analysis format."
       });
-
     }
 
-
-    /* ==========================================
-       COLLECT WEB SOURCES
-    ========================================== */
-
+    /*
+     * Extract web research citations.
+     */
     const sources = [];
 
+    for (const item of output) {
 
-    if (
-      Array.isArray(data.output)
-    ) {
+      if (!Array.isArray(item.content)) {
+        continue;
+      }
 
-      for (
-        const item of data.output
-      ) {
+      for (const content of item.content) {
 
         if (
-          Array.isArray(
-            item.content
-          )
+          content &&
+          Array.isArray(content.annotations)
         ) {
 
           for (
-            const content
-            of item.content
+            const annotation
+            of content.annotations
           ) {
 
             if (
-              Array.isArray(
-                content.annotations
-              )
+              annotation &&
+              annotation.type === "url_citation"
             ) {
 
-              for (
-                const annotation
-                of content.annotations
+              const url =
+                annotation.url ||
+                annotation.href;
+
+              const title =
+                annotation.title ||
+                "Research Source";
+
+              if (
+                url &&
+                !sources.some(
+                  source =>
+                    source.url === url
+                )
               ) {
 
-                if (
-                  annotation.type ===
-                  "url_citation"
-                ) {
-
-                  const url =
-                    annotation.url;
-
-                  const title =
-                    annotation.title ||
-                    url;
-
-
-                  if (
-                    url &&
-                    !sources.some(
-                      source =>
-                        source.url === url
-                    )
-                  ) {
-
-                    sources.push({
-
-                      title:
-                        title,
-
-                      url:
-                        url
-
-                    });
-
-                  }
-
-                }
+                sources.push({
+                  title,
+                  url
+                });
 
               }
 
@@ -578,37 +307,79 @@ Do not invent information.
 
     }
 
+    /*
+     * Also check top-level output items for citations,
+     * because the Responses API can expose annotations
+     * in slightly different locations.
+     */
+    for (const item of output) {
 
-    /* ==========================================
-       RETURN COMPLETE RESULT
-    ========================================== */
+      if (
+        item &&
+        Array.isArray(item.annotations)
+      ) {
 
-    return response.status(200).json({
+        for (
+          const annotation
+          of item.annotations
+        ) {
 
-      ...result,
+          if (
+            annotation &&
+            annotation.type === "url_citation"
+          ) {
 
-      research_sources:
-        sources
+            const url =
+              annotation.url ||
+              annotation.href;
 
-    });
+            const title =
+              annotation.title ||
+              "Research Source";
 
+            if (
+              url &&
+              !sources.some(
+                source =>
+                  source.url === url
+              )
+            ) {
+
+              sources.push({
+                title,
+                url
+              });
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+    /*
+     * Keep the number of displayed sources reasonable.
+     */
+    result.research_sources =
+      sources.slice(0, 8);
+
+    return response.status(200).json(result);
 
   } catch (error) {
 
     console.error(
-      "MISTER E AI ERROR:",
+      "Server Error:",
       error
     );
 
-
     return response.status(500).json({
-
       error:
-        error.message ||
-        "Something went wrong analyzing the card."
-
+        error?.message ||
+        "Something went wrong while analyzing the card."
     });
 
   }
-
 }
