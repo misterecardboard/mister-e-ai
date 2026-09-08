@@ -165,18 +165,39 @@ Accuracy is more important than filling every field.
       });
     }
 
-    const data = JSON.parse(resultText);
+const data = JSON.parse(resultText);
 
-    let result;
+let outputText = "";
 
-    try {
-      result = JSON.parse(data.output_text);
-    } catch {
-      return response.status(500).json({
-        error: "OpenAI returned an unexpected format.",
-        raw: data.output_text || ""
-      });
+if (Array.isArray(data.output)) {
+  for (const item of data.output) {
+    if (Array.isArray(item.content)) {
+      for (const content of item.content) {
+        if (content.type === "output_text" && content.text) {
+          outputText += content.text;
+        }
+      }
     }
+  }
+}
+
+if (!outputText) {
+  return response.status(500).json({
+    error: "OpenAI returned no text output.",
+    details: data
+  });
+}
+
+let result;
+
+try {
+  result = JSON.parse(outputText);
+} catch {
+  return response.status(500).json({
+    error: "OpenAI returned text that was not valid JSON.",
+    raw: outputText
+  });
+}
 
     return response.status(200).json(result);
 
