@@ -27,41 +27,46 @@ export default async function handler(request, response) {
     }
 
     /*
-     * Build the image input.
+     * Build the card images.
+     * Low detail is used to reduce image-token usage while
+     * keeping the image large enough for card identification.
      */
 
     const cardContent = [
       {
         type: "input_image",
-        image_url: `data:image/jpeg;base64,${front}`
+        image_url: `data:image/jpeg;base64,${front}`,
+        detail: "low"
       }
     ];
 
     if (back) {
       cardContent.push({
         type: "input_image",
-        image_url: `data:image/jpeg;base64,${back}`
+        image_url: `data:image/jpeg;base64,${back}`,
+        detail: "low"
       });
     }
 
     /*
-     * Compact prompt.
-     *
-     * The goal is identification + focused research,
-     * not a giant reasoning process.
+     * Keep the instruction compact.
+     * The goal is accurate card identification and useful
+     * collector/seller content without unnecessary output.
      */
 
     cardContent.push({
       type: "input_text",
       text: `
-You are MISTER E AI, a trading-card identification and research tool.
+You are MISTER E AI.
 
-Identify this card and use web search to verify the important facts.
+Identify and research the trading card shown in the images.
 
 Category: ${sport}
 
-Focus on:
-- exact card/set identification
+Use web search to verify important facts.
+
+Prioritize:
+- exact card/set
 - athlete or character
 - year
 - brand
@@ -72,14 +77,12 @@ Focus on:
 - important card history
 - important athlete/character history
 
-Accuracy rules:
-- Never invent information.
-- If uncertain, say "Not verified."
-- Never claim authenticity.
-- Never assign a professional grade.
-- Never invent a market value.
-
-Then create concise collector/seller content.
+Rules:
+- Never invent facts.
+- If something cannot be verified, say "Not verified."
+- Do not claim authenticity.
+- Do not assign a professional grade.
+- Do not invent market value.
 
 Return ONLY valid JSON.
 
@@ -132,7 +135,7 @@ Keep every field concise.
     });
 
     /*
-     * OpenAI Responses API.
+     * OpenAI Responses API
      */
 
     const openaiResponse = await fetch(
@@ -148,10 +151,6 @@ Keep every field concise.
         body: JSON.stringify({
           model: "gpt-5.6-luna",
 
-          /*
-           * No extra reasoning for this high-volume task.
-           * This is the biggest token-saving change.
-           */
           reasoning: {
             effort: "none"
           },
@@ -163,24 +162,20 @@ Keep every field concise.
             }
           ],
 
-          /*
-           * Web research remains enabled.
-           */
           tools: [
             {
               type: "web_search"
             }
           ],
 
-          /*
-           * Require the research tool.
-           */
           tool_choice: "required",
 
           /*
-           * Keep generated output compact.
+           * Keep the maximum response deliberately small.
+           * MISTER E AI does not need thousands of words
+           * to produce the six requested sections.
            */
-          max_output_tokens: 3000
+          max_output_tokens: 2200
         })
       }
     );
@@ -188,7 +183,7 @@ Keep every field concise.
     const data = await openaiResponse.json();
 
     /*
-     * OpenAI error.
+     * Handle OpenAI errors.
      */
 
     if (!openaiResponse.ok) {
@@ -205,7 +200,7 @@ Keep every field concise.
     }
 
     /*
-     * Extract text from Responses API.
+     * Extract the model's text from the raw Responses API.
      */
 
     let outputText = "";
@@ -252,7 +247,7 @@ Keep every field concise.
       .trim();
 
     /*
-     * Parse the JSON.
+     * Parse JSON.
      */
 
     let result;
@@ -277,9 +272,7 @@ Keep every field concise.
     }
 
     /*
-     * ---------------------------------------------------------
-     * FIND RESEARCH SOURCES
-     * ---------------------------------------------------------
+     * Collect research sources.
      */
 
     const sources = [];
@@ -321,86 +314,33 @@ Keep every field concise.
     }
 
     /*
-     * Recursively inspect the entire Responses API result.
+     * IMPORTANT:
+     * Web Search sources are returned inside
+     * web_search_call -> action -> sources.
      */
 
-    function scan(value) {
-      if (!value) {
-        return;
-      }
+    for (const item of output) {
+      if (
+        item &&
+        item.type === "web_search_call"
+      ) {
+        const searchSources =
+          item.action?.sources || [];
 
-      if (Array.isArray(value)) {
-        for (const item of value) {
-          scan(item);
+        if (Array.isArray(searchSources)) {
+          for (const source of searchSources) {
+            addSource(
+              source?.url,
+              source?.title
+            );
+          }
         }
-
-        return;
-      }
-
-      if (typeof value !== "object") {
-        return;
-      }
-
-      /*
-       * Standard URL citation.
-       */
-
-      if (
-        value.type === "url_citation"
-      ) {
-        addSource(
-          value.url,
-          value.title
-        );
-      }
-
-      /*
-       * Nested citation.
-       */
-
-      if (
-        value.url_citation &&
-        typeof value.url_citation === "object"
-      ) {
-        addSource(
-          value.url_citation.url,
-          value.url_citation.title
-        );
-      }
-
-      /*
-       * Some web-search result structures expose
-       * the URL directly.
-       */
-
-      if (
-        typeof value.url === "string" &&
-        (
-          value.title ||
-          value.type === "source" ||
-          value.type === "citation" ||
-          value.type === "url_citation"
-        )
-      ) {
-        addSource(
-          value.url,
-          value.title
-        );
-      }
-
-      /*
-       * Continue scanning nested objects.
-       */
-
-      for (const key of Object.keys(value)) {
-        scan(value[key]);
       }
     }
 
-    scan(data);
-
     /*
-     * Explicitly inspect output annotations too.
+     * Also scan annotations in case the API
+     * returns URL citations there.
      */
 
     for (const item of output) {
@@ -422,7 +362,8 @@ Keep every field concise.
         for (const annotation of part.annotations) {
           if (
             annotation &&
-            annotation.type === "url_citation"
+            annotation.type ===
+              "url_citation"
           ) {
             addSource(
               annotation.url,
@@ -434,7 +375,53 @@ Keep every field concise.
     }
 
     /*
-     * Return up to 8 research sources.
+     * Final fallback recursive scan.
+     */
+
+    function scan(value) {
+      if (!value) {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          scan(item);
+        }
+
+        return;
+      }
+
+      if (typeof value !== "object") {
+        return;
+      }
+
+      if (value.type === "url_citation") {
+        addSource(
+          value.url,
+          value.title
+        );
+      }
+
+      if (
+        value.url_citation &&
+        typeof value.url_citation ===
+          "object"
+      ) {
+        addSource(
+          value.url_citation.url,
+          value.url_citation.title
+        );
+      }
+
+      for (const key of Object.keys(value)) {
+        scan(value[key]);
+      }
+    }
+
+    scan(data);
+
+    /*
+     * Limit displayed sources.
      */
 
     result.research_sources =
@@ -449,14 +436,9 @@ Keep every field concise.
       )
     );
 
-    /*
-     * Return the finished result.
-     */
-
     return response.status(200).json(result);
 
   } catch (error) {
-
     console.error(
       "MISTER E AI server error:",
       error
