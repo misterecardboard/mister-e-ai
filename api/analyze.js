@@ -27,12 +27,10 @@ export default async function handler(request, response) {
     }
 
     /*
-     * ---------------------------------------------------------
-     * IMAGES
-     * ---------------------------------------------------------
+     * Build the image input.
      */
 
-    const content = [
+    const cardContent = [
       {
         type: "input_image",
         image_url: `data:image/jpeg;base64,${front}`
@@ -40,53 +38,50 @@ export default async function handler(request, response) {
     ];
 
     if (back) {
-      content.push({
+      cardContent.push({
         type: "input_image",
         image_url: `data:image/jpeg;base64,${back}`
       });
     }
 
     /*
-     * ---------------------------------------------------------
-     * COMPACT PROMPT
+     * Compact prompt.
      *
-     * Keep this intentionally short.
-     * The images provide the visual information.
-     * Web search provides verification.
-     * ---------------------------------------------------------
+     * The goal is identification + focused research,
+     * not a giant reasoning process.
      */
 
-    content.push({
+    cardContent.push({
       type: "input_text",
       text: `
-You are MISTER E AI, a trading-card identification and research assistant.
+You are MISTER E AI, a trading-card identification and research tool.
 
-Identify the uploaded card as accurately as possible.
+Identify this card and use web search to verify the important facts.
 
 Category: ${sport}
 
-Use web search to verify the card and athlete/character.
-
-Prioritize:
+Focus on:
+- exact card/set identification
+- athlete or character
 - year
 - brand
 - set
 - card number
-- athlete/character
-- variant/parallel
+- parallel/variant
 - rookie status
 - important card history
 - important athlete/character history
 
-Never invent information.
-If something cannot be verified, write "Not verified."
-Do not claim authenticity.
-Do not assign a professional grade.
-Do not invent market value.
+Accuracy rules:
+- Never invent information.
+- If uncertain, say "Not verified."
+- Never claim authenticity.
+- Never assign a professional grade.
+- Never invent a market value.
 
 Then create concise collector/seller content.
 
-Return ONLY valid JSON with this structure:
+Return ONLY valid JSON.
 
 {
   "card_information": {
@@ -108,19 +103,36 @@ Return ONLY valid JSON with this structure:
   },
   "why_this_card_matters": "",
   "listing_description": "",
-  "social_media_post_ideas": ["", "", ""],
-  "hashtags": ["", "", "", "", "", "", "", ""],
-  "content_ideas": ["", "", "", "", ""]
+  "social_media_post_ideas": [
+    "",
+    "",
+    ""
+  ],
+  "hashtags": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "content_ideas": [
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
 }
 
-Keep every answer concise.
+Keep every field concise.
 `
     });
 
     /*
-     * ---------------------------------------------------------
-     * OPENAI REQUEST
-     * ---------------------------------------------------------
+     * OpenAI Responses API.
      */
 
     const openaiResponse = await fetch(
@@ -136,16 +148,23 @@ Keep every answer concise.
         body: JSON.stringify({
           model: "gpt-5.6-luna",
 
+          /*
+           * No extra reasoning for this high-volume task.
+           * This is the biggest token-saving change.
+           */
+          reasoning: {
+            effort: "none"
+          },
+
           input: [
             {
               role: "user",
-              content
+              content: cardContent
             }
           ],
 
           /*
-           * Web research is required because MISTER E AI
-           * is specifically a research product.
+           * Web research remains enabled.
            */
           tools: [
             {
@@ -153,12 +172,15 @@ Keep every answer concise.
             }
           ],
 
+          /*
+           * Require the research tool.
+           */
           tool_choice: "required",
 
           /*
-           * Keep output deliberately compact.
+           * Keep generated output compact.
            */
-          max_output_tokens: 3500
+          max_output_tokens: 3000
         })
       }
     );
@@ -166,9 +188,7 @@ Keep every answer concise.
     const data = await openaiResponse.json();
 
     /*
-     * ---------------------------------------------------------
-     * ERROR HANDLING
-     * ---------------------------------------------------------
+     * OpenAI error.
      */
 
     if (!openaiResponse.ok) {
@@ -185,9 +205,7 @@ Keep every answer concise.
     }
 
     /*
-     * ---------------------------------------------------------
-     * EXTRACT MODEL TEXT
-     * ---------------------------------------------------------
+     * Extract text from Responses API.
      */
 
     let outputText = "";
@@ -214,7 +232,7 @@ Keep every answer concise.
 
     if (!outputText) {
       console.error(
-        "No output text returned:",
+        "OpenAI returned no output text:",
         JSON.stringify(data, null, 2)
       );
 
@@ -234,9 +252,7 @@ Keep every answer concise.
       .trim();
 
     /*
-     * ---------------------------------------------------------
-     * PARSE JSON
-     * ---------------------------------------------------------
+     * Parse the JSON.
      */
 
     let result;
@@ -262,10 +278,7 @@ Keep every answer concise.
 
     /*
      * ---------------------------------------------------------
-     * RESEARCH SOURCES
-     *
-     * Look for web-search source information anywhere in
-     * the Responses API result.
+     * FIND RESEARCH SOURCES
      * ---------------------------------------------------------
      */
 
@@ -307,16 +320,20 @@ Keep every answer concise.
       });
     }
 
+    /*
+     * Recursively inspect the entire Responses API result.
+     */
 
-    function inspect(value) {
+    function scan(value) {
       if (!value) {
         return;
       }
 
       if (Array.isArray(value)) {
         for (const item of value) {
-          inspect(item);
+          scan(item);
         }
+
         return;
       }
 
@@ -325,8 +342,9 @@ Keep every answer concise.
       }
 
       /*
-       * Direct URL citation.
+       * Standard URL citation.
        */
+
       if (
         value.type === "url_citation"
       ) {
@@ -337,8 +355,9 @@ Keep every answer concise.
       }
 
       /*
-       * Nested URL citation.
+       * Nested citation.
        */
+
       if (
         value.url_citation &&
         typeof value.url_citation === "object"
@@ -350,15 +369,17 @@ Keep every answer concise.
       }
 
       /*
-       * Web-search source-like object.
+       * Some web-search result structures expose
+       * the URL directly.
        */
+
       if (
         typeof value.url === "string" &&
         (
+          value.title ||
           value.type === "source" ||
           value.type === "citation" ||
-          value.type === "url_citation" ||
-          value.title
+          value.type === "url_citation"
         )
       ) {
         addSource(
@@ -368,18 +389,20 @@ Keep every answer concise.
       }
 
       /*
-       * Continue through nested response data.
+       * Continue scanning nested objects.
        */
+
       for (const key of Object.keys(value)) {
-        inspect(value[key]);
+        scan(value[key]);
       }
     }
 
-    inspect(data);
+    scan(data);
 
     /*
-     * Also inspect annotations attached to output text.
+     * Explicitly inspect output annotations too.
      */
+
     for (const item of output) {
       if (
         !item ||
@@ -411,13 +434,14 @@ Keep every answer concise.
     }
 
     /*
-     * Keep only the first 8 sources.
+     * Return up to 8 research sources.
      */
+
     result.research_sources =
       sources.slice(0, 8);
 
     console.log(
-      "MISTER E AI research sources:",
+      "MISTER E AI sources:",
       JSON.stringify(
         result.research_sources,
         null,
@@ -426,9 +450,7 @@ Keep every answer concise.
     );
 
     /*
-     * ---------------------------------------------------------
-     * RETURN RESULT
-     * ---------------------------------------------------------
+     * Return the finished result.
      */
 
     return response.status(200).json(result);
@@ -436,7 +458,7 @@ Keep every answer concise.
   } catch (error) {
 
     console.error(
-      "Server Error:",
+      "MISTER E AI server error:",
       error
     );
 
